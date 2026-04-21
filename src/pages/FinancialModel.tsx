@@ -9,7 +9,7 @@ import StackedBarChart from '../components/charts/StackedBarChart'
 import DonutChart from '../components/charts/DonutChart'
 import AreaChartComponent from '../components/charts/AreaChartComponent'
 import { useCalculations, useInvestorReturns, useLongTermSREC } from '../hooks/useCalculations'
-import { formatCurrency } from '../utils/formatCurrency'
+import { formatCurrency, formatCurrencyPrecise } from '../utils/formatCurrency'
 import { DIVISION_COLORS } from '../theme/chartTheme'
 import { BUDGET_CATEGORIES, BUDGET_GRAND_TOTAL } from '../data/investorPortal/budgetBreakdown'
 import type { BudgetCategory } from '../data/investorPortal/budgetBreakdown'
@@ -144,7 +144,7 @@ export default function FinancialModel() {
       })
     : null
 
-  const budgetTotal = formatCurrency(BUDGET_GRAND_TOTAL)
+  const budgetTotal = formatCurrencyPrecise(BUDGET_GRAND_TOTAL)
 
   return (
     <PageShell fullWidth>
@@ -530,35 +530,48 @@ export default function FinancialModel() {
               {/* Accelerated Stream Cards */}
               <motion.div variants={fadeUp}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {[
-                    { division: 'Home Services', color: DIVISION_COLORS.homeServices, share: '15%', desc: 'of Home Services profits until 65% threshold is reached',
-                      y1: investorReturns.annualReturns[0].homeServicesDistribution, y5: investorReturns.annualReturns[4].homeServicesDistribution,
-                      cumulative: investorReturns.annualReturns.reduce((s, r) => s + r.homeServicesDistribution, 0) },
-                    { division: 'Real Estate', color: DIVISION_COLORS.realEstate, share: '20%', desc: 'of Real Estate profits until 65% threshold is reached',
-                      y1: investorReturns.annualReturns[0].solarRealEstateDistribution, y5: investorReturns.annualReturns[4].solarRealEstateDistribution,
-                      cumulative: investorReturns.annualReturns.reduce((s, r) => s + r.solarRealEstateDistribution, 0) },
-                    { division: 'Aerial Insights', color: DIVISION_COLORS.aerialInsights, share: '10%', desc: 'of Aerial Insights profits until 65% threshold is reached',
-                      y1: investorReturns.annualReturns[0].aerialDistribution, y5: investorReturns.annualReturns[4].aerialDistribution,
-                      cumulative: investorReturns.annualReturns.reduce((s, r) => s + r.aerialDistribution, 0) },
-                  ].map((stream) => (
-                    <div key={stream.division} className="luxury-card p-6 relative overflow-hidden group hover:border-surface-light transition-all duration-300">
-                      <div className="absolute top-0 left-0 w-full h-1 opacity-80" style={{ backgroundColor: stream.color }} />
-                      <div className="flex items-center gap-2 mb-4 mt-1">
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stream.color }} />
-                        <span className="text-text-primary text-sm font-semibold">{stream.division}</span>
-                      </div>
-                      <span className="text-accent-gold font-display font-bold text-4xl">{stream.share}</span>
-                      <p className="text-text-muted text-xs mb-5 mt-2">{stream.desc}</p>
-                      <div className="space-y-2.5 pt-4 border-t border-surface-border/40">
-                        <div className="flex justify-between"><span className="text-text-muted text-xs">Year 1</span><span className="text-text-primary font-display font-semibold text-sm">{formatCurrency(stream.y1)}</span></div>
-                        <div className="flex justify-between"><span className="text-text-muted text-xs">Year 5</span><span className="text-text-primary font-display font-semibold text-sm">{formatCurrency(stream.y5)}</span></div>
-                        <div className="flex justify-between pt-2 border-t border-surface-border/30">
-                          <span className="text-text-muted text-xs font-medium">5-Year Total</span>
-                          <span className="text-accent-gold font-display font-bold text-base">{formatCurrency(stream.cumulative)}</span>
+                  {(() => {
+                    const peakFor = (key: 'homeServicesDistribution' | 'solarRealEstateDistribution' | 'aerialDistribution') => {
+                      let idx = 0
+                      let val = 0
+                      investorReturns.annualReturns.forEach((r, i) => {
+                        if (r[key] > val) { val = r[key]; idx = i }
+                      })
+                      return { year: idx + 1, value: val }
+                    }
+                    const hsPeak = peakFor('homeServicesDistribution')
+                    const rePeak = peakFor('solarRealEstateDistribution')
+                    const aerialPeak = peakFor('aerialDistribution')
+                    return [
+                      { division: 'Home Services', color: DIVISION_COLORS.homeServices, share: '15%', desc: 'of Home Services profits until 65% threshold is reached',
+                        y1: investorReturns.annualReturns[0].homeServicesDistribution, peak: hsPeak,
+                        cumulative: investorReturns.annualReturns.reduce((s, r) => s + r.homeServicesDistribution, 0) },
+                      { division: 'Real Estate', color: DIVISION_COLORS.realEstate, share: '20%', desc: 'of Real Estate profits until 65% threshold is reached',
+                        y1: investorReturns.annualReturns[0].solarRealEstateDistribution, peak: rePeak,
+                        cumulative: investorReturns.annualReturns.reduce((s, r) => s + r.solarRealEstateDistribution, 0) },
+                      { division: 'Aerial Insights', color: DIVISION_COLORS.aerialInsights, share: '10%', desc: 'of Aerial Insights profits until 65% threshold is reached',
+                        y1: investorReturns.annualReturns[0].aerialDistribution, peak: aerialPeak,
+                        cumulative: investorReturns.annualReturns.reduce((s, r) => s + r.aerialDistribution, 0) },
+                    ].map((stream) => (
+                      <div key={stream.division} className="luxury-card p-6 relative overflow-hidden group hover:border-surface-light transition-all duration-300">
+                        <div className="absolute top-0 left-0 w-full h-1 opacity-80" style={{ backgroundColor: stream.color }} />
+                        <div className="flex items-center gap-2 mb-4 mt-1">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stream.color }} />
+                          <span className="text-text-primary text-sm font-semibold">{stream.division}</span>
+                        </div>
+                        <span className="text-accent-gold font-display font-bold text-4xl">{stream.share}</span>
+                        <p className="text-text-muted text-xs mb-5 mt-2">{stream.desc}</p>
+                        <div className="space-y-2.5 pt-4 border-t border-surface-border/40">
+                          <div className="flex justify-between"><span className="text-text-muted text-xs">Year 1</span><span className="text-text-primary font-display font-semibold text-sm">{formatCurrency(stream.y1)}</span></div>
+                          <div className="flex justify-between"><span className="text-text-muted text-xs">Peak Year (Y{stream.peak.year})</span><span className="text-text-primary font-display font-semibold text-sm">{formatCurrency(stream.peak.value)}</span></div>
+                          <div className="flex justify-between pt-2 border-t border-surface-border/30">
+                            <span className="text-text-muted text-xs font-medium">5-Year Total</span>
+                            <span className="text-accent-gold font-display font-bold text-base">{formatCurrency(stream.cumulative)}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  })()}
                 </div>
               </motion.div>
 
@@ -883,7 +896,7 @@ export default function FinancialModel() {
                                 <span className="text-text-primary text-sm font-semibold">{cat.label}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-accent-gold font-display font-semibold">{formatCurrency(cat.total)}</span>
+                                <span className="text-accent-gold font-display font-semibold">{formatCurrencyPrecise(cat.total)}</span>
                                 <span className="text-text-dim text-xs group-hover:text-accent-gold transition-colors">&rarr;</span>
                               </div>
                             </div>
@@ -897,11 +910,11 @@ export default function FinancialModel() {
                   /* ── DRILL-DOWN VIEW ───────────────────────────────────── */
                   <motion.div key={selectedCategory.key} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <ChartCard title={`${selectedCategory.label} Breakdown`} subtitle={formatCurrency(selectedCategory.total)}>
+                      <ChartCard title={`${selectedCategory.label} Breakdown`} subtitle={formatCurrencyPrecise(selectedCategory.total)}>
                         <DonutChart
                           data={drillDownChartData!}
                           centerLabel={selectedCategory.label.split(' ')[0]}
-                          centerValue={formatCurrency(selectedCategory.total)}
+                          centerValue={formatCurrencyPrecise(selectedCategory.total)}
                         />
                       </ChartCard>
                       <div className="space-y-2">
@@ -914,7 +927,7 @@ export default function FinancialModel() {
                                 <div className={outputs ? 'flex-1 min-w-0' : ''}>
                                   <div className="flex justify-between items-baseline mb-1.5">
                                     <span className="text-text-primary text-sm font-semibold">{item.label}</span>
-                                    <span className="text-accent-gold font-display font-semibold text-sm">{formatCurrency(item.amount)}</span>
+                                    <span className="text-accent-gold font-display font-semibold text-sm">{formatCurrencyPrecise(item.amount)}</span>
                                   </div>
                                   <p className="text-text-muted text-xs">{item.why}</p>
                                 </div>

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { MEMO } from '../../../data/investorPortal/memoContent'
 import { BUDGET_CATEGORIES } from '../../../data/investorPortal/budgetBreakdown'
-import { formatCurrency } from '../../../utils/formatCurrency'
+import { formatCurrencyPrecise } from '../../../utils/formatCurrency'
 import ChartCard from '../../../components/data-display/ChartCard'
 import DonutChart from '../../../components/charts/DonutChart'
 import SectionHeader from '../components/SectionHeader'
@@ -42,7 +42,7 @@ export default function CapitalDeployment() {
             innerRadius={80}
             outerRadius={125}
             centerLabel="Total"
-            centerValue="$40.0M"
+            centerValue={formatCurrencyPrecise(total)}
           />
         </ChartCard>
       </div>
@@ -68,7 +68,7 @@ export default function CapitalDeployment() {
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
-                  <p className="font-display font-bold text-base text-text-primary">{formatCurrency(cat.total)}</p>
+                  <p className="font-display font-bold text-base text-text-primary">{formatCurrencyPrecise(cat.total)}</p>
                 </div>
               </div>
 
@@ -88,7 +88,7 @@ export default function CapitalDeployment() {
                 {cat.items.slice(0, 4).map((item) => (
                   <div key={item.label} className="flex justify-between items-baseline py-1">
                     <span className="text-text-muted text-xs">{item.label}</span>
-                    <span className="text-text-secondary text-xs font-medium ml-2">{formatCurrency(item.amount)}</span>
+                    <span className="text-text-secondary text-xs font-medium ml-2">{formatCurrencyPrecise(item.amount)}</span>
                   </div>
                 ))}
                 {cat.items.length > 4 && (
