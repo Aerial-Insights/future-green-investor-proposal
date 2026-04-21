@@ -22,11 +22,14 @@ export default function TopNav() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-3 shrink-0">
-            <img src="/images/logo.png" alt="Future Green Capital Group" className="w-[60px] h-[60px] object-contain rounded-lg" />
-            <span className="font-display font-semibold text-text-primary text-lg tracking-wide hidden sm:flex flex-col leading-tight">
-              <span>Future Green</span>
-              <span>Capital Group</span>
-            </span>
+            <img src="/images/logo.png" alt="Future Green Energy Group × International Petrotech and Investments Inc." className="w-[60px] h-[60px] object-contain rounded-lg" />
+            <div className="font-display hidden sm:flex flex-col leading-tight">
+              <span className="text-[13px] font-semibold text-text-primary tracking-[0.08em] uppercase">Future Green Energy Group</span>
+              <span className="flex items-center gap-1.5 mt-1">
+                <span className="text-accent-gold text-[11px] font-light leading-none">×</span>
+                <span className="text-[11px] text-text-secondary tracking-[0.04em]">International Petrotech and Investments Inc.</span>
+              </span>
+            </div>
           </NavLink>
 
           {/* Desktop nav */}
