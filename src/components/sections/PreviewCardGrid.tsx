@@ -29,7 +29,7 @@ export default function PreviewCardGrid({ cards }: PreviewCardGridProps) {
           >
             <div
               className="w-10 h-1 rounded-full mb-4 transition-all duration-300 group-hover:w-16"
-              style={{ backgroundColor: card.accent ?? '#c9a84c' }}
+              style={{ backgroundColor: card.accent ?? 'var(--color-accent-gold)' }}
             />
             <h3 className="font-display font-semibold text-text-primary text-lg mb-2 group-hover:text-accent-gold transition-colors">
               {card.title}

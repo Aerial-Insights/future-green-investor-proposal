@@ -15,7 +15,7 @@ export default function PageShell({ children, className = '', fullWidth = false 
       initial="initial"
       animate="animate"
       exit="exit"
-      className={`min-h-screen pt-16 ${className}`}
+      className={`min-h-screen pt-20 ${className}`}
     >
       {fullWidth ? (
         children

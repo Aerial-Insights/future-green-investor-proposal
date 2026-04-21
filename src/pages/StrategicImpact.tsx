@@ -40,6 +40,16 @@ const iconMap: Record<string, JSX.Element> = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
     </svg>
   ),
+  leaf: (
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-1.5 0-4.5-1.5-6-4.5S4.5 9 4.5 6c3 0 6 .75 7.5 3s1.5 4.5 1.5 6m0 0c1.5 0 4.5-1.5 6-4.5S21 3 21 3c-3 0-6 .75-7.5 3s-1.5 4.5-1.5 6m-1.5 3V9" />
+    </svg>
+  ),
+  award: (
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-4.5A3.375 3.375 0 0012.75 12h-1.5A3.375 3.375 0 007.5 14.25v4.5m9-9a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+    </svg>
+  ),
 }
 
 export default function StrategicImpact() {
@@ -72,10 +82,29 @@ export default function StrategicImpact() {
           ))}
         </motion.div>
 
+        <motion.div
+          variants={staggerItem}
+          initial="initial"
+          animate="animate"
+          className="mt-12 rounded-2xl overflow-hidden border border-accent-green/20 group"
+        >
+          <img
+            src="/images/aerial-detection-confidence.jpeg"
+            alt="AI-powered aerial property detection with confidence scoring"
+            className="w-full h-64 sm:h-80 md:h-96 object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+          <div className="px-6 py-4 bg-surface-elevated border-t border-accent-green/15">
+            <p className="text-text-secondary text-sm leading-relaxed text-center">
+              Future Green's proprietary aerial intelligence platform scores and ranks every property in a target area —
+              turning satellite imagery into actionable leads at $0.15 per scan.
+            </p>
+          </div>
+        </motion.div>
+
         <div className="mt-16 luxury-card text-center max-w-3xl mx-auto">
           <h3 className="font-display font-bold text-text-primary text-2xl mb-4">Beyond Financial Returns</h3>
           <p className="text-text-secondary leading-relaxed">
-            Unity Capital Group is designed to create value at every level — for investors, for communities,
+            Future Green Capital Group is designed to create value at every level — for investors, for communities,
             and for the environment. Each dollar deployed generates measurable outcomes across job creation,
             energy production, housing supply, and technology advancement. This is a platform built not
             just to grow, but to matter.

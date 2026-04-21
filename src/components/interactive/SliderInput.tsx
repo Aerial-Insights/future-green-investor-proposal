@@ -32,7 +32,7 @@ export default function SliderInput({ label, value, min, max, step, onChange, fo
             [&::-webkit-slider-thumb]:shadow-glow [&::-webkit-slider-thumb]:cursor-pointer
             [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110"
           style={{
-            background: `linear-gradient(to right, #c9a84c ${percent}%, #262626 ${percent}%)`,
+            background: `linear-gradient(to right, var(--color-slider-fill) ${percent}%, var(--color-slider-track) ${percent}%)`,
           }}
         />
       </div>

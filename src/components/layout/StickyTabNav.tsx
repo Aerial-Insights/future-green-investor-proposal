@@ -11,7 +11,7 @@ interface StickyTabNavProps {
 
 export default function StickyTabNav({ tabs, activeTab, onTabChange }: StickyTabNavProps) {
   return (
-    <div className="sticky top-16 z-40 bg-surface/95 backdrop-blur-lg border-b border-surface-border -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+    <div className="sticky top-20 z-40 bg-surface/95 backdrop-blur-lg border-b border-surface-border -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex gap-1 overflow-x-auto py-3 scrollbar-none">
           {tabs.map((tab) => (

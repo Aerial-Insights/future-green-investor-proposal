@@ -11,7 +11,6 @@ const accentColors: Record<string, string> = {
   '/financial-model': '#d4d4d8',
   '/assumptions-lab': '#f59e0b',
   '/strategic-impact': '#a3a3a3',
-  '/next-step': DIVISION_COLORS.homeServices,
 }
 
 export default function NavigationGuide() {

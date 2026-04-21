@@ -29,6 +29,54 @@ export default function AerialOverview() {
         </div>
       </motion.div>
 
+      {/* ── AI DETECTION SHOWCASE ─────────────────────────────────────── */}
+      <motion.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="space-y-4"
+      >
+        <motion.h2 variants={staggerItem} className="font-display font-bold text-text-primary text-2xl">
+          AI-Powered Property Analysis
+        </motion.h2>
+        <motion.p variants={staggerItem} className="text-text-secondary text-sm max-w-2xl">
+          Our computer vision models automatically detect and classify structural features, enabling instant property assessment at scale.
+        </motion.p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div
+            variants={staggerItem}
+            className="group rounded-2xl overflow-hidden border border-surface-border bg-surface-elevated"
+          >
+            <div className="overflow-hidden">
+              <img
+                src="/images/aerial-mansion-white.png"
+                alt="AI property segmentation on residential estate"
+                className="w-full h-64 sm:h-72 object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+            </div>
+            <div className="px-5 py-3 border-t border-surface-border">
+              <p className="text-text-muted text-xs font-medium tracking-wide">AI-Powered Property Segmentation</p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={staggerItem}
+            className="group rounded-2xl overflow-hidden border border-surface-border bg-surface-elevated"
+          >
+            <div className="overflow-hidden">
+              <img
+                src="/images/aerial-mansion-brick.png"
+                alt="Automated feature detection on brick mansion"
+                className="w-full h-64 sm:h-72 object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+            </div>
+            <div className="px-5 py-3 border-t border-surface-border">
+              <p className="text-text-muted text-xs font-medium tracking-wide">Automated Feature Detection</p>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
+
       {/* ── CORE EXPLANATION ───────────────────────────────────────────── */}
       <motion.div
         variants={staggerContainer}
@@ -60,6 +108,22 @@ export default function AerialOverview() {
         <motion.h2 variants={staggerItem} className="font-display font-bold text-text-primary text-2xl">
           Competitive Advantage
         </motion.h2>
+
+        <motion.div
+          variants={staggerItem}
+          className="group rounded-2xl overflow-hidden border border-[#6366f1]/20 bg-surface-elevated"
+        >
+          <div className="overflow-hidden">
+            <img
+              src="/images/aerial-detection-confidence.jpeg"
+              alt="Real-time object detection with confidence scoring"
+              className="w-full h-56 sm:h-72 md:h-80 object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+          </div>
+          <div className="px-5 py-3 border-t border-[#6366f1]/15 bg-[#6366f1]/5">
+            <p className="text-text-muted text-xs font-medium tracking-wide">Real-Time Object Detection with Confidence Scoring</p>
+          </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Traditional Model */}

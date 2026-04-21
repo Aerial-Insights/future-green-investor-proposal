@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import PageShell from '../components/layout/PageShell'
 import SectionBanner from '../components/sections/SectionBanner'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { staggerContainer, staggerItem } from '../theme/animations'
 import { QUALIFICATIONS } from '../data/investorPortal/content'
 
@@ -30,39 +29,6 @@ const credentialIcons: Record<string, JSX.Element> = {
   ),
 }
 
-const categoryIcons: Record<string, JSX.Element> = {
-  roof: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-    </svg>
-  ),
-  flame: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1.001A3.75 3.75 0 0012 18z" />
-    </svg>
-  ),
-  sun: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-    </svg>
-  ),
-  droplet: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2.25c0 0-6.75 8.25-6.75 12a6.75 6.75 0 1013.5 0c0-3.75-6.75-12-6.75-12z" />
-    </svg>
-  ),
-  wind: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h10.5a2.25 2.25 0 010 4.5H3.75m0 0h13.5a2.25 2.25 0 010 4.5H3.75m3-13.5h7.5a2.25 2.25 0 010 4.5H6.75" />
-    </svg>
-  ),
-  layers: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L12 12.75 6.429 9.75m11.142 0l4.179 2.25L12 17.25 2.25 12l4.179-2.25m11.142 0l4.179 2.25L12 22.5l-9.75-5.25 4.179-2.25" />
-    </svg>
-  ),
-}
 
 const certCategoryColors: Record<string, string> = {
   Sustainability: 'bg-accent-green/10 text-accent-green-light',
@@ -72,75 +38,6 @@ const certCategoryColors: Record<string, string> = {
   Compliance: 'bg-red-500/10 text-red-400',
 }
 
-/* ─── SUBCONTRACTOR CATEGORY ─────────────────────────────────────────────── */
-
-function SubcontractorCategory({ category, count, icon, subs }: {
-  category: string
-  count: number
-  icon: string
-  subs: { name: string; detail?: string }[]
-}) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div className={`rounded-xl border bg-surface-elevated overflow-hidden transition-all duration-300 ${open ? 'border-accent-gold/30' : 'border-surface-border'}`}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-surface-hover transition-colors duration-200"
-        aria-expanded={open}
-      >
-        <div className="w-10 h-10 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center shrink-0">
-          {categoryIcons[icon] ?? categoryIcons.roof}
-        </div>
-        <span className="font-display font-semibold text-text-primary text-base flex-1">{category}</span>
-        <span className="bg-accent-gold/10 text-accent-gold text-xs font-semibold px-2.5 py-1 rounded-full">
-          {count} {count === 1 ? 'sub' : 'subs'}
-        </span>
-        <svg
-          className={`w-5 h-5 text-text-muted transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } }}
-            exit={{ height: 0, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-5 pt-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {subs.map((sub) => (
-                  <div
-                    key={sub.name}
-                    className={`rounded-lg border p-4 transition-all duration-200 hover:border-accent-gold/30 ${
-                      sub.detail ? 'border-surface-border bg-surface-elevated' : 'border-dashed border-surface-light bg-surface'
-                    }`}
-                  >
-                    <p className={`font-medium text-sm mb-1 ${sub.detail ? 'text-accent-gold' : 'text-text-primary'}`}>
-                      {sub.name}
-                    </p>
-                    {sub.detail ? (
-                      <p className="text-text-secondary text-xs leading-relaxed">{sub.detail}</p>
-                    ) : (
-                      <div className="space-y-1">
-                        <span className="text-text-dim text-xs">Details pending</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
 
 /* ─── MAIN PAGE ──────────────────────────────────────────────────────────── */
 
@@ -244,6 +141,87 @@ export default function Qualifications() {
                 <p className="text-text-secondary text-xs leading-relaxed border-t border-surface-border pt-2 mt-auto">
                   {cert.relevance}
                 </p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 2B: VERIFIED CREDENTIALS — IMAGE GALLERY
+        ══════════════════════════════════════════════════════════════════ */}
+        <section>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
+          >
+            <h2 className="font-display font-bold text-text-primary text-2xl mb-4">
+              Verified Credentials & Proof of Work
+            </h2>
+            <p className="text-text-secondary leading-relaxed max-w-4xl mb-8">
+              Documented certifications, federal recognitions, and professional credentials backing the team's operational authority.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {[
+              {
+                src: '/images/credentials/epa-leadsafe.jpg',
+                title: 'EPA Lead-Safe Certified Firm',
+                subtitle: 'NAT-F222147-1',
+                description: 'Federal certification for lead-safe renovation, repair, and painting practices.',
+              },
+              {
+                src: '/images/credentials/energystar-century-club.jpg',
+                title: 'ENERGY STAR Century Club Award',
+                subtitle: '2022 — Future Green Services',
+                description: 'Awarded by the U.S. Department of Energy and EPA for improving energy efficiency in 100+ homes.',
+              },
+              {
+                src: '/images/credentials/mit-sustainable-energy.jpg',
+                title: 'MIT — Sustainable Energy',
+                subtitle: 'MITx Verified Certificate',
+                description: 'Completed MIT 22.811 Sustainable Energy curriculum through edX — Franklin Bourdeau.',
+              },
+              {
+                src: '/images/credentials/gpro-construction.jpg',
+                title: 'GPRO Construction Management',
+                subtitle: 'Urban Green Council',
+                description: 'Certified in sustainable construction management and high-performance building practices.',
+              },
+              {
+                src: '/images/credentials/energy-benchmarking.jpg',
+                title: 'Energy Benchmarking Certification',
+                subtitle: 'PBJ Tech Hub — 4 PDH | .4 CEU',
+                description: 'Completed Energy Data, Metrics, and Analytics professional development program.',
+              },
+            ].map((item) => (
+              <motion.div key={item.title} variants={staggerItem}>
+                <a
+                  href={item.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block luxury-card group overflow-hidden h-full hover:shadow-glow"
+                >
+                  <div className="relative -mx-6 -mt-6 mb-4 overflow-hidden bg-surface rounded-t-xl">
+                    <img
+                      src={item.src}
+                      alt={item.title}
+                      className="w-full h-52 object-contain bg-white/90 p-3 transition-transform duration-500 group-hover:scale-[1.02]"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3 className="font-display font-semibold text-text-primary text-base mb-1 leading-snug">
+                    {item.title}
+                  </h3>
+                  <p className="text-accent-gold text-sm mb-2">{item.subtitle}</p>
+                  <p className="text-text-secondary text-xs leading-relaxed">{item.description}</p>
+                </a>
               </motion.div>
             ))}
           </motion.div>
@@ -438,23 +416,26 @@ export default function Qualifications() {
             </p>
           </motion.div>
 
-          {/* Summary strip */}
+          {/* ── Hero Summary Strip ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-            className="luxury-card mb-8"
+            className="luxury-card luxury-card-highlighted mb-10"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
-              <div className="flex items-baseline gap-3">
-                <span className="font-display font-bold text-4xl gold-gradient-text">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-baseline gap-4">
+                <span className="font-display font-bold text-5xl sm:text-6xl gold-gradient-text leading-none">
                   {QUALIFICATIONS.totalSubcontractors}
                 </span>
-                <span className="font-display font-semibold text-text-primary text-lg">
-                  Active Subcontractors
+                <span className="font-display font-bold text-text-primary text-xl sm:text-2xl">
+                  Active Subs
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-text-secondary text-sm leading-relaxed max-w-3xl">
+                A distributed subcontractor network providing flexible installation and service capacity across six core home-services categories — enabling the platform to scale execution without in-house workforce constraints.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
                 {QUALIFICATIONS.subcontractorCategories.map((cat) => (
                   <span
                     key={cat.category}
@@ -467,12 +448,67 @@ export default function Qualifications() {
             </div>
           </motion.div>
 
-          {/* Audit Partner Highlight */}
+          {/* ── Featured Execution Partners ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.12, ease: 'easeOut' }}
-            className="luxury-card border-l-4 border-l-accent-blue mb-6"
+            className="mb-8"
+          >
+            <h3 className="font-display font-semibold text-text-primary text-lg mb-1">
+              Featured Execution Partners
+            </h3>
+            <p className="text-text-muted text-sm mb-6">
+              Key subcontractors providing depth and regional capacity across solar, HVAC, and weatherization.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+          >
+            {QUALIFICATIONS.featuredSubcontractors.map((sub) => (
+              <motion.div
+                key={sub.name}
+                variants={staggerItem}
+                className="luxury-card luxury-card-highlighted flex flex-col"
+              >
+                <div className="w-10 h-1 rounded-full bg-accent-gold mb-4" />
+                <span className="inline-block text-xs font-semibold uppercase tracking-wider text-accent-gold bg-accent-gold/10 px-2.5 py-1 rounded-full self-start mb-3">
+                  {sub.category}
+                </span>
+                <h4 className="font-display font-semibold text-text-primary text-lg mb-3">
+                  {sub.name}
+                </h4>
+                <p className="text-text-secondary text-sm leading-relaxed mb-4">
+                  {sub.summary}
+                </p>
+                <div className="mb-4 flex-1">
+                  <p className="text-text-dim text-xs uppercase tracking-wider font-medium mb-2">Capabilities</p>
+                  <ul className="space-y-1.5">
+                    {sub.capabilities.map((cap) => (
+                      <li key={cap} className="flex items-start gap-2 text-text-secondary text-xs leading-relaxed">
+                        <span className="w-1 h-1 rounded-full bg-accent-gold mt-1.5 shrink-0" />
+                        {cap}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="border-t border-surface-border pt-3 mt-auto">
+                  <p className="text-text-muted text-xs italic leading-relaxed">{sub.whyItMatters}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* ── Audit Partner Highlight ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.18, ease: 'easeOut' }}
+            className="luxury-card border-l-4 border-l-accent-blue"
           >
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center shrink-0">
@@ -495,25 +531,6 @@ export default function Qualifications() {
                 </div>
               </div>
             </div>
-          </motion.div>
-
-          {/* Category accordions */}
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-            className="space-y-3"
-          >
-            {QUALIFICATIONS.subcontractorCategories.map((cat) => (
-              <motion.div key={cat.category} variants={staggerItem}>
-                <SubcontractorCategory
-                  category={cat.category}
-                  count={cat.count}
-                  icon={cat.icon}
-                  subs={cat.subs}
-                />
-              </motion.div>
-            ))}
           </motion.div>
         </section>
 

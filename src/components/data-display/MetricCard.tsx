@@ -14,6 +14,7 @@ interface MetricCardProps {
   delta?: number
   explanationKey?: string
   compact?: boolean
+  highlighted?: boolean
   className?: string
   style?: React.CSSProperties
 }
@@ -27,6 +28,7 @@ export default function MetricCard({
   delta,
   explanationKey,
   compact = false,
+  highlighted = false,
   className = '',
   style,
 }: MetricCardProps) {
@@ -51,14 +53,14 @@ export default function MetricCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`luxury-card ${compact ? 'p-4' : 'p-6'} ${className}`}
+      className={`luxury-card ${compact ? 'p-4' : 'p-6'} ${highlighted ? 'luxury-card-highlighted' : ''} ${className}`}
       style={style}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-text-secondary text-xs font-medium uppercase tracking-wider">{label}</p>
         {explanationKey && <InfoIcon explanationKey={explanationKey} />}
       </div>
-      <p className={`font-display font-bold text-text-primary mt-2 ${compact ? 'text-xl' : 'text-2xl sm:text-3xl'}`}>
+      <p className={`font-display font-bold mt-2 ${compact ? 'text-xl' : 'text-2xl sm:text-3xl'} ${highlighted ? 'gold-gradient-text' : 'text-text-primary'}`}>
         {prefix}{formatValue(animatedValue)}{suffix}
       </p>
       {delta !== undefined && (

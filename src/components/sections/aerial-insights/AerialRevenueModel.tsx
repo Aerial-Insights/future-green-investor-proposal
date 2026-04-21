@@ -5,6 +5,7 @@ import { useCalculations } from '../../../hooks/useCalculations'
 import { AERIAL_INSIGHTS } from '../../../data/investorPortal/content'
 import { DIVISION_COLORS } from '../../../theme/chartTheme'
 import { formatCurrency } from '../../../utils/formatCurrency'
+import { formatNumber } from '../../../utils/formatNumber'
 import MetricStrip from '../../data-display/MetricStrip'
 import ChartCard from '../../data-display/ChartCard'
 import AreaChartComponent from '../../charts/AreaChartComponent'
@@ -147,6 +148,7 @@ export default function AerialRevenueModel() {
             label="Active Users"
             color={DIVISION_COLORS.aerialInsights}
             height={340}
+            formatValue={(v) => formatNumber(v)}
           />
         )}
       </div>

@@ -7,6 +7,7 @@ interface Metric {
   prefix?: string
   suffix?: string
   explanationKey?: string
+  highlighted?: boolean
 }
 
 interface MetricStripProps {

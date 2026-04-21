@@ -7,6 +7,7 @@ export interface SalesAssumptions {
   doorsPerRepPerDay: number
   workingDaysPerWeek: number
   d2dConversionRate: number // 1.5% from doors to roofing jobs
+  d2dAnnualCostPerRep: number // loaded cost per rep (salary + overhead + commission base)
   // Direct Mail Channel
   directMailPiecesPerMonth: number
   directMailCostPerPiece: number
@@ -75,11 +76,10 @@ export interface RealEstateAssumptions {
   mailVolumePerMonth: number // shared with direct mail for land
   responseRate: number // 1%
   leadRate: number // 40%
-  closeRate: number // 10%
+  closeRate: number // 45%
   averageParcelSize: number // 10 acres
   averageCostPerAcre: number // $10,000
-  wholesaleAllocation: number // 60%
-  solarFarmAllocation: number // 5%
+  wholesaleAllocation: number // 65% (was 60%, absorbed former 5% solar farm allocation)
   housingSubdivideAllocation: number // 35%
   housingShareOfHousingSubdivide: number // 20%
   subdivisionShareOfHousingSubdivide: number // 80%
@@ -87,24 +87,26 @@ export interface RealEstateAssumptions {
   avgResellPerAcre: number // $40,000
 }
 
-export interface SolarFarmAssumptions {
-  acresPerMW: number // 5
-  srecsPerMW: number // 1,200
-  srecPriceDC: number // $375
-  srecPriceMD: number // $50
-  dcQualificationRate: number // 40%
-  /** @deprecated Use annualSRECRevenuePerAcre instead */
-  revenuePerAcre: number // $250,000 (legacy — kept for backward compat)
-  annualSRECRevenuePerAcre: number // $150,000 (DC-area annual SREC revenue per acre)
-  upfrontSRECValuePerAcre: number // $275,000 (one-time capitalized SREC value per acre)
-  buildDelayMonths: number // 18
-  avgLandCostPerAcre: number // $22,000
-  avgSolarCostPerAcre: number // $450,000
+export interface DistributedSolarAssumptions {
+  leadCost: number              // $200 blended cost per qualified solar lead
+  conversionRate: number        // 8% lead-to-install (industry 5-12% for qualified leads)
+  srecsPerInstall: number       // 12 SRECs per install per year
+  srecValue: number             // $400 per SREC
+  installFee: number            // $28,000 blended revenue per installation job
+  installMargin: number         // 32% gross margin on install revenue
+  // Monthly marketing ramp (spend per month by year)
+  monthlySpendY1: number        // $50,000/month
+  monthlySpendY2: number        // $85,000/month
+  monthlySpendY3: number        // $120,000/month
+  monthlySpendY4: number        // $160,000/month
+  monthlySpendY5: number        // $200,000/month
+  srecLifespan: number          // 20 years per cohort
+  srecAdminRate: number         // 15% admin/compliance (registration, monitoring, reporting)
 }
 
 export interface HousingAssumptions {
   buildCostPerUnit: number // $200,000
-  marketValuePerUnit: number // $300,000
+  marketValuePerUnit: number // $360,000
   rentPerUnitMonthly: number // $2,200
   occupancyRate: number // 90%
   capRate: number // 6%
@@ -120,25 +122,19 @@ export interface AerialAssumptions {
   costPerScan: number // $0.07
   monthlyGrowthRate: number
   churnRate: number
+  yearEndTargets: number[] // [Y1, Y2, Y3, Y4, Y5] user counts
+  aerialMarketingMonthly: number // monthly marketing/growth budget
 }
 
 export interface CapitalAssumptions {
   totalCapitalRaise: number
-  solarFarms: number
+  distributedSolar: number
+  homeServices: number
+  marketing: number
+  aerialInsights: number
+  wholesalePipeline: number
   lowIncomeHousing: number
-  landAcquisitions: number
-  holdTargetLandMarketing: number
-  wholesaleLandMarketing: number
-  wholesaleBuyerMarketing: number
-  homeServiceOperations: number
-  roofingDirectMail: number
-  grantPPCCampaign: number
-  commercialCampaign: number
-  doorToDoorExpansion: number
-  adminStaffExpansion: number
-  aerialInsightsDVP: number
-  aerialInsightsDATA: number
-  aerialInsightsMRT: number
+  strategicPartnerships: number
 }
 
 export interface GrantAssumptions {
@@ -147,7 +143,9 @@ export interface GrantAssumptions {
   avgGrantCoveragePercent: number
   reimbursementLagMonths: number
   rebateEligibilityRate: number
-  avgRebateCoveragePercent: number
+  avgResidentialRebatePerDeal: number
+  commercialRebateDealsPerYear: number
+  avgCommercialRebatePerDeal: number
 }
 
 export interface DirectMailGrowth {
@@ -164,7 +162,7 @@ export interface AllAssumptions {
   upsell: UpsellRates
   serviceEconomics: ServiceEconomics
   realEstate: RealEstateAssumptions
-  solarFarm: SolarFarmAssumptions
+  distributedSolar: DistributedSolarAssumptions
   housing: HousingAssumptions
   aerial: AerialAssumptions
   capital: CapitalAssumptions
@@ -181,9 +179,10 @@ export const BASE_ASSUMPTIONS: AllAssumptions = {
     doorsPerRepPerDay: 30,
     workingDaysPerWeek: 5,
     d2dConversionRate: 0.015, // 1.5%
+    d2dAnnualCostPerRep: 60000, // salary + overhead + commission base
     // Direct Mail Channel
     directMailPiecesPerMonth: 20000,
-    directMailCostPerPiece: 1.50,
+    directMailCostPerPiece: 1.07,
     directMailLeadConversion: 0.005, // 0.5%
     directMailLeadToJob: 0.55, // 55%
     // Commercial Paid Leads
@@ -250,11 +249,10 @@ export const BASE_ASSUMPTIONS: AllAssumptions = {
     mailVolumePerMonth: 20000,
     responseRate: 0.01, // 1%
     leadRate: 0.40, // 40%
-    closeRate: 0.10, // 10%
+    closeRate: 0.45, // 45%
     averageParcelSize: 10,
     averageCostPerAcre: 10000,
-    wholesaleAllocation: 0.60,
-    solarFarmAllocation: 0.05,
+    wholesaleAllocation: 0.65, // was 0.60, absorbed former 5% solar farm allocation
     housingSubdivideAllocation: 0.35,
     housingShareOfHousingSubdivide: 0.20,
     subdivisionShareOfHousingSubdivide: 0.80,
@@ -262,23 +260,25 @@ export const BASE_ASSUMPTIONS: AllAssumptions = {
     avgResellPerAcre: 40000,
   },
 
-  solarFarm: {
-    acresPerMW: 5,
-    srecsPerMW: 1200,
-    srecPriceDC: 375,
-    srecPriceMD: 50,
-    dcQualificationRate: 0.40,
-    revenuePerAcre: 250000,
-    annualSRECRevenuePerAcre: 150000,
-    upfrontSRECValuePerAcre: 275000,
-    buildDelayMonths: 18,
-    avgLandCostPerAcre: 22000,
-    avgSolarCostPerAcre: 450000,
+  distributedSolar: {
+    leadCost: 200,
+    conversionRate: 0.08,
+    srecsPerInstall: 12,
+    srecValue: 400,
+    installFee: 28000,
+    installMargin: 0.32,
+    monthlySpendY1: 50000,
+    monthlySpendY2: 85000,
+    monthlySpendY3: 120000,
+    monthlySpendY4: 160000,
+    monthlySpendY5: 200000,
+    srecLifespan: 20,
+    srecAdminRate: 0.15,
   },
 
   housing: {
     buildCostPerUnit: 200000,
-    marketValuePerUnit: 300000,
+    marketValuePerUnit: 360000,
     rentPerUnitMonthly: 2200,
     occupancyRate: 0.90,
     capRate: 0.06,
@@ -292,27 +292,21 @@ export const BASE_ASSUMPTIONS: AllAssumptions = {
     revenuePerUserMonthly: 700,
     customerAcquisitionCost: 200,
     costPerScan: 0.07,
-    monthlyGrowthRate: 0.12,
-    churnRate: 0.04,
+    monthlyGrowthRate: 0.07,
+    churnRate: 0.03,
+    yearEndTargets: [1500, 5000, 10000, 15000, 20000],
+    aerialMarketingMonthly: 30000,
   },
 
   capital: {
-    totalCapitalRaise: 39975000,
-    solarFarms: 18500000,
-    lowIncomeHousing: 9000000,
-    landAcquisitions: 3950000,
-    holdTargetLandMarketing: 0,
-    wholesaleLandMarketing: 0,
-    wholesaleBuyerMarketing: 0,
-    homeServiceOperations: 4950000,
-    roofingDirectMail: 0,
-    grantPPCCampaign: 0,
-    commercialCampaign: 0,
-    doorToDoorExpansion: 0,
-    adminStaffExpansion: 0,
-    aerialInsightsDVP: 875000,
-    aerialInsightsDATA: 0,
-    aerialInsightsMRT: 0,
+    totalCapitalRaise: 40000000,
+    distributedSolar: 10000000,
+    homeServices: 8475000,
+    marketing: 5300000,
+    aerialInsights: 1775000,
+    wholesalePipeline: 3580000,
+    lowIncomeHousing: 10070000,
+    strategicPartnerships: 800000,
   },
 
   grants: {
@@ -321,7 +315,9 @@ export const BASE_ASSUMPTIONS: AllAssumptions = {
     avgGrantCoveragePercent: 0.30,
     reimbursementLagMonths: 3,
     rebateEligibilityRate: 0.60,
-    avgRebateCoveragePercent: 0.33,
+    avgResidentialRebatePerDeal: 3500,
+    commercialRebateDealsPerYear: 4,
+    avgCommercialRebatePerDeal: 375000,
   },
 
   directMailGrowth: {

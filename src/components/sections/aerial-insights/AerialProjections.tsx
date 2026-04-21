@@ -2,6 +2,7 @@ import { useCalculations } from '../../../hooks/useCalculations'
 import { useAssumptionsStore } from '../../../store/useAssumptionsStore'
 import { DIVISION_COLORS } from '../../../theme/chartTheme'
 import { formatCurrency } from '../../../utils/formatCurrency'
+import { formatNumber } from '../../../utils/formatNumber'
 import MetricStrip from '../../data-display/MetricStrip'
 import ChartCard from '../../data-display/ChartCard'
 import RevenueLineChart from '../../charts/RevenueLineChart'
@@ -107,6 +108,7 @@ export default function AerialProjections() {
             label="Active Users"
             color={DIVISION_COLORS.aerialInsights}
             height={320}
+            formatValue={(v) => formatNumber(v)}
           />
         </ChartCard>
       </div>

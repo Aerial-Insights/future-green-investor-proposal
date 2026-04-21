@@ -9,7 +9,7 @@ import type {
 import { calcHomeServicesAll } from './homeServices'
 import { calcSolarOperations } from './solarOperations'
 import { calcOutreachFunnel, calcDealAllocation, calcWholesale } from './landAcquisition'
-import { calcSolarFarm, calcSolarFarmRevenue } from './solarFarms'
+import { calcDistributedSolar } from './distributedSolar'
 import { calcHousing } from './housingDev'
 import { calcSubdivision } from './subdivision'
 import { calcAerialInsights } from './aerialInsights'
@@ -20,23 +20,22 @@ function calcRealEstateAll(a: AllAssumptions, year: number): RealEstateFullOutpu
   const funnel = calcOutreachFunnel(a, year)
   const allocation = calcDealAllocation(a, year)
   const wholesale = calcWholesale(a, year)
-  const solarFarm = calcSolarFarm(a, year)
+  const distributedSolar = calcDistributedSolar(a, year)
   const housing = calcHousing(a, year)
   const subdivision = calcSubdivision(a, year)
 
-  // Solar farm revenue comes from cumulative active acres
-  const solarFarmActiveRevenue = calcSolarFarmRevenue(a, year)
-
-  const totalRevenue = wholesale.totalRevenue + solarFarmActiveRevenue +
+  // Total revenue includes wholesale, distributed solar install revenue, housing, subdivision
+  // Note: SREC revenue is tracked separately and does NOT count toward threshold
+  const totalRevenue = wholesale.totalRevenue + distributedSolar.installRevenue +
     housing.totalMarketValue + subdivision.resaleRevenue
-  const totalProfit = wholesale.totalProfit + solarFarmActiveRevenue * 0.60 +
+  const totalProfit = wholesale.totalProfit + distributedSolar.installRevenue * a.distributedSolar.installMargin +
     housing.totalProfit + subdivision.profit
 
   return {
     funnel,
     allocation,
     wholesale,
-    solarFarm,
+    distributedSolar,
     housing,
     subdivision,
     totalRevenue,
@@ -45,25 +44,30 @@ function calcRealEstateAll(a: AllAssumptions, year: number): RealEstateFullOutpu
 }
 
 // ─── PORTFOLIO AGGREGATION ──────────────────────────────────────────────────
-// 5-year profit totals from spreadsheet:
-// Y1: $8,200,400 | Y2: $15,425,600 | Y3: $24,663,200 | Y4: $41,400,800 | Y5: $73,138,400
 
 function calcPortfolio(a: AllAssumptions, year: number): PortfolioOutput {
   const hs = calcHomeServicesAll(a, year)
   const solar = calcSolarOperations(a, year)
   const re = calcRealEstateAll(a, year)
   const aerial = calcAerialInsights(a, year)
+  const ds = calcDistributedSolar(a, year)
 
   const homeServicesProfit = hs.totalProfitAnnual
   const solarOperationsProfit = solar.totalProfit
+  // DS install profit is already included in realEstateProfit via calcRealEstateAll
+  // We track it separately for reporting but do NOT add it again to totalProfit
+  const distributedSolarProfit = ds.installRevenue * a.distributedSolar.installMargin
   const realEstateProfit = re.totalProfit
-  // Aerial profit: high SaaS margins (~75%) minus scan costs
-  const aerialProfit = aerial.annualRevenue * 0.75 - aerial.scanCostMonthly * 12
+  // Aerial profit: high SaaS margins (~75%) minus scan costs minus marketing spend
+  const aerialMarketingAnnual = a.aerial.aerialMarketingMonthly * 12
+  const aerialProfit = aerial.annualRevenue * 0.75 - aerial.scanCostMonthly * 12 - aerialMarketingAnnual
 
+  // realEstateProfit already includes distributedSolarProfit, so don't add it separately
   const totalProfit = homeServicesProfit + solarOperationsProfit + realEstateProfit + aerialProfit
 
   const homeServicesMix = totalProfit > 0 ? homeServicesProfit / totalProfit : 0
   const solarMix = totalProfit > 0 ? solarOperationsProfit / totalProfit : 0
+  const distributedSolarMix = totalProfit > 0 ? distributedSolarProfit / totalProfit : 0
   const realEstateMix = totalProfit > 0 ? realEstateProfit / totalProfit : 0
   const aerialMix = totalProfit > 0 ? aerialProfit / totalProfit : 0
 
@@ -71,10 +75,12 @@ function calcPortfolio(a: AllAssumptions, year: number): PortfolioOutput {
     totalProfit,
     homeServicesProfit,
     solarOperationsProfit,
+    distributedSolarProfit,
     realEstateProfit,
     aerialProfit,
     homeServicesMix,
     solarMix,
+    distributedSolarMix,
     realEstateMix,
     aerialMix,
   }
@@ -84,19 +90,14 @@ function calcPortfolio(a: AllAssumptions, year: number): PortfolioOutput {
 
 function calcCapitalDeployment(a: AllAssumptions): CapitalDeploymentOutput {
   const c = a.capital
-  const solarFarms = c.solarFarms
-  const lowIncomeHousing = c.lowIncomeHousing
-  const landAcquisitions = c.landAcquisitions
-  const homeServiceOperations = c.homeServiceOperations
-  const aerialInsights = c.aerialInsightsDVP + c.aerialInsightsDATA + c.aerialInsightsMRT
-  const marketing = c.totalCapitalRaise - solarFarms - lowIncomeHousing - landAcquisitions - homeServiceOperations - aerialInsights
   return {
-    solarFarms,
-    lowIncomeHousing,
-    landAcquisitions,
-    homeServiceOperations,
-    aerialInsights,
-    marketing,
+    distributedSolar: c.distributedSolar,
+    homeServices: c.homeServices,
+    marketing: c.marketing,
+    aerialInsights: c.aerialInsights,
+    wholesalePipeline: c.wholesalePipeline,
+    lowIncomeHousing: c.lowIncomeHousing,
+    strategicPartnerships: c.strategicPartnerships,
     totalDeployed: c.totalCapitalRaise,
   }
 }
@@ -110,7 +111,7 @@ function calcReturnTimeline(a: AllAssumptions): ReturnTimelineOutput {
   const solarY3 = calcSolarOperations(a, 3)
   const aerialY3 = calcAerialInsights(a, 3)
 
-  const solarFarmY5 = calcSolarFarmRevenue(a, 5)
+  const dsY5 = calcDistributedSolar(a, 5)
   const housingY5 = calcHousing(a, 5)
 
   return {
@@ -118,8 +119,8 @@ function calcReturnTimeline(a: AllAssumptions): ReturnTimelineOutput {
     nearTermDescription: 'Home Services 4-channel profit and wholesale land flips generate immediate cash flow within months of deployment.',
     mediumTermProfit: solarY3.totalProfit + aerialY3.annualRevenue * 0.75,
     mediumTermDescription: 'Solar installations and Aerial Insights SaaS revenue scale through years 2-3 as sales teams grow and platform adoption increases.',
-    longTermProfit: solarFarmY5 * 0.60 + housingY5.totalProfit,
-    longTermDescription: 'Solar farm SREC revenue and housing development sale profits activate in years 3-5 as development projects complete and homes are sold.',
+    longTermProfit: dsY5.srecRevenue + housingY5.totalProfit,
+    longTermDescription: 'Distributed solar SREC revenue and housing development sale profits activate as install cohorts accumulate and homes are sold.',
   }
 }
 

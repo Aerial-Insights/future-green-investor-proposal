@@ -13,7 +13,6 @@ const FinancialModel = lazy(() => import('./pages/FinancialModel'))
 const AssumptionsLab = lazy(() => import('./pages/AssumptionsLab'))
 const StrategicImpact = lazy(() => import('./pages/StrategicImpact'))
 const Qualifications = lazy(() => import('./pages/Qualifications'))
-const NextStep = lazy(() => import('./pages/NextStep'))
 
 function PageLoader() {
   return (
@@ -37,14 +36,13 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: wrap(Overview) },
+      { path: 'qualifications', element: wrap(Qualifications) },
       { path: 'home-services', element: wrap(HomeServices) },
       { path: 'solar-real-estate', element: wrap(SolarRealEstate) },
       { path: 'aerial-insights', element: wrap(AerialInsights) },
       { path: 'financial-model', element: wrap(FinancialModel) },
       { path: 'assumptions-lab', element: wrap(AssumptionsLab) },
       { path: 'strategic-impact', element: wrap(StrategicImpact) },
-      { path: 'qualifications', element: wrap(Qualifications) },
-      { path: 'next-step', element: wrap(NextStep) },
     ],
   },
 ])

@@ -23,15 +23,15 @@ function getMonthlyLetters(a: AllAssumptions, year: number): number {
 }
 
 // ─── OUTREACH FUNNEL ────────────────────────────────────────────────────────
-// Mail -> 1% response -> 40% lead rate -> 10% close rate
-// Y1: 20,000/month × 12 = 240,000 annual letters -> 96 deals
+// Mail -> 1% response -> 40% lead rate -> 45% close rate
+// Y1: 20,000/month × 12 = 240,000 annual letters -> 432 deals
 
 export function calcOutreachFunnel(a: AllAssumptions, year: number): OutreachFunnelOutput {
   const re = a.realEstate
   const monthlyLetters = getMonthlyLetters(a, year)
   const monthlyResponses = monthlyLetters * re.responseRate // 1%
   const monthlyQualifiedLeads = monthlyResponses * re.leadRate // 40%
-  const monthlyAcquisitions = monthlyQualifiedLeads * re.closeRate // 10%
+  const monthlyAcquisitions = monthlyQualifiedLeads * re.closeRate // 45%
   const annualAcquisitions = monthlyAcquisitions * 12
   const annualAcresAcquired = annualAcquisitions * re.averageParcelSize
 
@@ -46,7 +46,7 @@ export function calcOutreachFunnel(a: AllAssumptions, year: number): OutreachFun
 }
 
 // ─── DEAL ALLOCATION ────────────────────────────────────────────────────────
-// Wholesale: 60%, Solar Farms: 5%, Housing+Subdivide: 35% (20% housing, 80% subdivide)
+// Wholesale: 65%, Housing+Subdivide: 35% (20% housing, 80% subdivide)
 
 export function calcDealAllocation(a: AllAssumptions, year: number): DealAllocationOutput {
   const funnel = calcOutreachFunnel(a, year)
@@ -55,26 +55,22 @@ export function calcDealAllocation(a: AllAssumptions, year: number): DealAllocat
   const parcelSize = re.averageParcelSize
 
   const wholesaleDeals = total * re.wholesaleAllocation
-  const solarFarmDeals = total * re.solarFarmAllocation
   const housingSubdivideDeals = total * re.housingSubdivideAllocation
   const housingDeals = housingSubdivideDeals * re.housingShareOfHousingSubdivide
   const subdivisionDeals = housingSubdivideDeals * re.subdivisionShareOfHousingSubdivide
 
   return {
     wholesaleDeals,
-    solarFarmDeals,
     housingDeals,
     subdivisionDeals,
     wholesaleAcres: wholesaleDeals * parcelSize,
-    solarFarmAcres: solarFarmDeals * parcelSize,
     housingAcres: housingDeals * parcelSize,
     subdivisionAcres: subdivisionDeals * parcelSize,
   }
 }
 
 // ─── WHOLESALE ──────────────────────────────────────────────────────────────
-// 60% of deals at $18,000 assignment fee
-// Y1: 96 × 60% = 57.6 deals × $18,000 = $1,036,800
+// 65% of deals at $18,000 assignment fee
 
 export function calcWholesale(a: AllAssumptions, year: number): WholesaleOutput {
   const allocation = calcDealAllocation(a, year)

@@ -20,7 +20,6 @@ import { useAssumptionsStore } from '../store/useAssumptionsStore'
 
 const tabs = [
   { id: 'overview', label: 'Overview' },
-  { id: 'solar-farms', label: 'Solar Farms' },
   { id: 'wholesale', label: 'Wholesale' },
   { id: 'housing', label: 'Housing Development' },
   { id: 'subdivision', label: 'Subdivision' },
@@ -35,10 +34,6 @@ export default function SolarRealEstate() {
   const y5 = years[4]
   const { assumptions, setAssumption } = useAssumptionsStore()
 
-  // Solar farms toggle
-  const [showProfit, setShowProfit] = useState(false)
-  const [srecMode, setSrecMode] = useState<'annual' | 'upfront'>('annual')
-
   // Subdivision interactive controls
   const [subdivCostPerAcre, setSubdivCostPerAcre] = useState(15000)
   const [subdivMultiplier, setSubdivMultiplier] = useState(2.5)
@@ -51,22 +46,9 @@ export default function SolarRealEstate() {
   const reSegmentRevenue = years.map((y) => ({
     name: `Year ${y.year}`,
     Wholesale: y.realEstate.wholesale.totalRevenue,
-    'Solar Farms': y.realEstate.solarFarm.cumulativeSRECRevenue,
+    'Distributed Solar': y.realEstate.distributedSolar.srecRevenue,
     Housing: y.realEstate.housing.totalMarketValue,
     Subdivision: y.realEstate.subdivision.resaleRevenue,
-  }))
-
-  const activeAcresData = years.map((y) => ({
-    name: `Year ${y.year}`,
-    acres: y.realEstate.solarFarm.activeAcres,
-  }))
-
-  const solarProfitData = years.map((y) => ({
-    name: `Year ${y.year}`,
-    'Energy Revenue': y.realEstate.solarFarm.energyRevenue,
-    'SREC Revenue': srecMode === 'annual'
-      ? y.realEstate.solarFarm.annualSRECRevenue
-      : y.realEstate.solarFarm.upfrontSRECValue,
   }))
 
   // Wholesale 5-year model — uses existing funnel + wholesale calculations
@@ -97,8 +79,8 @@ export default function SolarRealEstate() {
     { year: 4, homes: 40 },
     { year: 5, homes: 60 },
   ]
-  const buildCost = 180000
-  const marketValue = 300000
+  const buildCost = assumptions.housing.buildCostPerUnit
+  const marketValue = assumptions.housing.marketValuePerUnit
   const profitPerHome = marketValue - buildCost
 
   const housingProfitData = housingGoals.map((g) => ({
@@ -130,7 +112,7 @@ export default function SolarRealEstate() {
                 metrics={[
                   { label: 'Y5 Total RE Revenue', value: y5.realEstate.totalRevenue, format: 'currency' },
                   { label: 'Y5 RE Profit', value: y5.realEstate.totalProfit, format: 'currency' },
-                  { label: 'Y5 Active Solar Acres', value: y5.realEstate.solarFarm.activeAcres, format: 'number', explanationKey: 'activeAcres' },
+                  { label: 'Y5 Cumulative Installs', value: y5.realEstate.distributedSolar.cumulativeInstalls, format: 'number', explanationKey: 'cumulativeInstalls' },
                   { label: 'Y5 Homes Sold', value: y5.realEstate.housing.homesBuilt, format: 'number' },
                 ]}
                 columns={4}
@@ -138,7 +120,7 @@ export default function SolarRealEstate() {
 
               {/* Real Estate and Development Strategy */}
               <div className="luxury-card">
-                <h3 className="font-display font-semibold text-text-primary text-lg mb-3">Real Estate and Development Strategy</h3>
+                <h3 className="font-display font-semibold text-text-primary text-lg mb-3">Real Estate Strategy</h3>
                 <p className="text-text-secondary leading-relaxed mb-4">{SOLAR_REAL_ESTATE.overviewNarrative}</p>
                 <p className="text-text-secondary leading-relaxed">{SOLAR_REAL_ESTATE.strategyDetail}</p>
               </div>
@@ -155,190 +137,17 @@ export default function SolarRealEstate() {
                 ))}
               </div>
 
-              <ChartCard title="Revenue by Pathway" subtitle="Annual real estate segment contribution">
+              <ChartCard title="Revenue by Pathway" subtitle="Annual segment contribution">
                 <StackedBarChart
                   data={reSegmentRevenue}
                   bars={[
                     { key: 'Wholesale', label: 'Wholesale', color: '#c9a84c' },
-                    { key: 'Solar Farms', label: 'Solar Farms', color: '#f59e0b' },
+                    { key: 'Distributed Solar', label: 'Distributed Solar', color: '#f59e0b' },
                     { key: 'Housing', label: 'Housing', color: '#2d6a4f' },
                     { key: 'Subdivision', label: 'Subdivision', color: '#6366f1' },
                   ]}
                 />
               </ChartCard>
-            </div>
-          )}
-
-          {activeTab === 'solar-farms' && (
-            <div className="space-y-8">
-              <h2 className="font-display font-bold text-text-primary text-2xl">Solar Farm Development</h2>
-
-              {/* Strategic Overview */}
-              <div className="luxury-card">
-                <h3 className="font-display font-semibold text-text-primary text-lg mb-3">Why DC-Area Solar Farms Are a Core Strategic Asset</h3>
-                <p className="text-text-secondary leading-relaxed mb-3">
-                  Solar farms in the Washington, D.C. corridor represent one of the highest-conviction long-term revenue opportunities in the portfolio. The District's Renewable Portfolio Standard creates structural demand for Solar Renewable Energy Credits (SRECs), producing premium pricing that significantly exceeds national averages. This is not speculative — it is policy-driven, contractable, and durable.
-                </p>
-                <p className="text-text-secondary leading-relaxed mb-3">
-                  Critically, SREC revenue extends for approximately <strong className="text-text-primary">20 years</strong> per qualifying system. This creates a long-duration payout stream for investors — each acre of solar farmland deployed today generates recurring annual income for two decades. The compounding effect of adding new acreage each year means the portfolio's annual revenue grows while prior-year installations continue producing income.
-                </p>
-                <p className="text-text-secondary leading-relaxed">
-                  The company holds a meaningful operational advantage: existing solar installation crews and solar-related execution infrastructure are already in place through the Home Services division. This overlapping capability means the business can expand into solar farm development at lower marginal cost, with proven labor and permitting expertise — capitalizing on highly profitable SREC economics using resources that already exist within the platform.
-                </p>
-              </div>
-
-              {/* Supporting callouts */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="luxury-card text-center py-5">
-                  <span className="text-accent-gold font-display font-bold text-3xl">~20 yr</span>
-                  <span className="text-text-muted text-xs block mt-2">SREC Revenue Duration per System</span>
-                </div>
-                <div className="luxury-card text-center py-5">
-                  <span className="text-accent-gold font-display font-bold text-3xl">${assumptions.solarFarm.srecPriceDC}</span>
-                  <span className="text-text-muted text-xs block mt-2">DC SREC Price per Credit</span>
-                </div>
-                <div className="luxury-card text-center py-5">
-                  <span className="text-accent-gold font-display font-bold text-3xl">{formatCurrency(assumptions.solarFarm.annualSRECRevenuePerAcre, false)}</span>
-                  <span className="text-text-muted text-xs block mt-2">Annual SREC Revenue per Acre</span>
-                </div>
-              </div>
-
-              <MetricStrip
-                metrics={[
-                  { label: 'Y5 Active Acres', value: y5.realEstate.solarFarm.activeAcres, format: 'number', explanationKey: 'activeAcres' },
-                  { label: 'Annual SREC Rev/Acre', value: assumptions.solarFarm.annualSRECRevenuePerAcre, format: 'currency' },
-                  { label: 'Y5 Annual SREC Revenue', value: y5.realEstate.solarFarm.annualSRECRevenue, format: 'currency' },
-                  { label: 'Y5 Total Profit', value: y5.realEstate.solarFarm.totalProfit, format: 'currency' },
-                ]}
-                columns={4}
-              />
-
-              {/* Toggle between acreage and profit view */}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setShowProfit(false)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${!showProfit ? 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30' : 'bg-surface border border-surface-border text-text-secondary hover:text-text-primary'}`}
-                >
-                  Acreage View
-                </button>
-                <button
-                  onClick={() => setShowProfit(true)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${showProfit ? 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30' : 'bg-surface border border-surface-border text-text-secondary hover:text-text-primary'}`}
-                >
-                  Profit View
-                </button>
-                {showProfit && (
-                  <>
-                    <div className="w-px bg-surface-border mx-1" />
-                    <button
-                      onClick={() => setSrecMode('annual')}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${srecMode === 'annual' ? 'bg-accent-green/10 text-accent-green-light border border-accent-green/30' : 'bg-surface border border-surface-border text-text-secondary hover:text-text-primary'}`}
-                    >
-                      Annual SREC Revenue
-                    </button>
-                    <button
-                      onClick={() => setSrecMode('upfront')}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${srecMode === 'upfront' ? 'bg-accent-green/10 text-accent-green-light border border-accent-green/30' : 'bg-surface border border-surface-border text-text-secondary hover:text-text-primary'}`}
-                    >
-                      Upfront SREC Value
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {!showProfit ? (
-                  <ChartCard title="Active Solar Acres" subtitle="Cumulative qualifying acres after development lag">
-                    <AreaChartComponent data={activeAcresData} dataKey="acres" color="#f59e0b" formatValue={(v) => `${Math.round(v)} acres`} />
-                  </ChartCard>
-                ) : (
-                  <ChartCard
-                    title={srecMode === 'annual' ? 'Annual SREC Revenue' : 'Upfront SREC Value'}
-                    subtitle={srecMode === 'annual' ? 'Recurring annual revenue from energy + SREC sales' : 'One-time capitalized SREC monetization equivalent'}
-                  >
-                    <StackedBarChart
-                      data={solarProfitData}
-                      bars={[
-                        { key: 'Energy Revenue', label: 'Energy Revenue', color: '#f59e0b' },
-                        { key: 'SREC Revenue', label: srecMode === 'annual' ? 'Annual SREC Revenue' : 'Upfront SREC Value', color: '#c9a84c' },
-                      ]}
-                    />
-                  </ChartCard>
-                )}
-                <div className="luxury-card">
-                  <h3 className="font-display font-semibold text-text-primary text-lg mb-4">Key Economics</h3>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Acres per MW', value: `${assumptions.solarFarm.acresPerMW} acres` },
-                      { label: 'Annual MWh per MW', value: '1,500 MWh' },
-                      { label: 'Energy Price', value: '$55/MWh' },
-                      { label: 'DC SREC Price', value: `$${assumptions.solarFarm.srecPriceDC}/SREC` },
-                      { label: 'MD SREC Price', value: `$${assumptions.solarFarm.srecPriceMD}/SREC` },
-                      { label: 'DC Qualification Rate', value: formatPercent(assumptions.solarFarm.dcQualificationRate) },
-                      { label: 'Development Lag', value: `${assumptions.solarFarm.buildDelayMonths} months` },
-                      { label: 'Annual SREC Rev/Acre', value: formatCurrency(assumptions.solarFarm.annualSRECRevenuePerAcre, false) },
-                      { label: 'Upfront SREC Value/Acre', value: formatCurrency(assumptions.solarFarm.upfrontSRECValuePerAcre, false) + ' (one-time)' },
-                    ].map((item) => (
-                      <div key={item.label} className="flex justify-between py-2 border-b border-surface-border">
-                        <span className="text-text-secondary text-sm">{item.label}</span>
-                        <span className="text-text-primary text-sm font-medium">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* SREC Assumptions Controls */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="luxury-card">
-                  <h3 className="font-display font-semibold text-text-primary text-lg mb-4">SREC Assumptions</h3>
-                  <div className="space-y-4">
-                    <SliderInput
-                      label="Annual SREC Revenue/Acre"
-                      value={assumptions.solarFarm.annualSRECRevenuePerAcre}
-                      min={125000}
-                      max={167000}
-                      step={1000}
-                      onChange={(v) => setAssumption('solarFarm', 'annualSRECRevenuePerAcre', v)}
-                      format={(v) => formatCurrency(v, false)}
-                    />
-                    <SliderInput
-                      label="Upfront SREC Value/Acre"
-                      value={assumptions.solarFarm.upfrontSRECValuePerAcre}
-                      min={275000}
-                      max={327000}
-                      step={1000}
-                      onChange={(v) => setAssumption('solarFarm', 'upfrontSRECValuePerAcre', v)}
-                      format={(v) => formatCurrency(v, false)}
-                    />
-                  </div>
-                  <p className="text-text-muted text-xs mt-4 leading-relaxed">
-                    Annual SREC Revenue reflects recurring yearly income per acre. Upfront SREC Value represents the equivalent one-time capitalized value if SRECs are contracted or sold forward. These are two ways to model the same underlying economics.
-                  </p>
-                </div>
-
-                {/* DC SREC Economics Explanation */}
-                <div className="luxury-card">
-                  <h3 className="font-display font-semibold text-text-primary text-lg mb-3">DC SREC Market Economics</h3>
-                  <p className="text-text-secondary text-sm leading-relaxed mb-3">
-                    Washington, D.C. maintains one of the strongest Solar Renewable Energy Credit markets in the United States. The District's aggressive Renewable Portfolio Standard requires utilities to source an increasing share of electricity from solar, creating structural demand that supports premium SREC pricing.
-                  </p>
-                  <p className="text-text-secondary text-sm leading-relaxed mb-3">
-                    DC-qualified systems generate SRECs valued at ${assumptions.solarFarm.srecPriceDC}/credit, compared to ${assumptions.solarFarm.srecPriceMD}/credit in Maryland. With {formatPercent(assumptions.solarFarm.dcQualificationRate)} of portfolio systems qualifying for DC pricing, annual SREC economics can materially increase solar farm profitability above national benchmarks.
-                  </p>
-                  <p className="text-text-secondary text-sm leading-relaxed">
-                    The model distinguishes between <strong className="text-text-primary">Annual SREC Revenue</strong> ($125K-$167K/acre/year recurring) and <strong className="text-text-primary">Upfront SREC Value</strong> ($275K-$327K/acre one-time equivalent). In some structures, SRECs can be monetized as a large upfront payment rather than annual income.
-                  </p>
-                </div>
-              </div>
-
-              <TimelineBlock
-                phases={[
-                  { label: 'Year 1-2', title: 'Acquisition & Permitting', description: 'Source land below market, secure zoning and permits, begin site preparation.', highlight: 'Development lag period — no revenue yet' },
-                  { label: 'Year 3', title: 'First Farms Active', description: 'Year 1 acquisitions come online. Energy sales and SREC generation begin.' },
-                  { label: 'Year 4-5', title: 'Compounding Portfolio', description: 'Multiple years of acquisitions now active. Revenue from energy and SRECs compounds as active acreage grows.', highlight: 'Revenue accelerates as portfolio matures' },
-                ]}
-              />
             </div>
           )}
 
@@ -363,7 +172,7 @@ export default function SolarRealEstate() {
                   This creates near-term liquidity while the company selectively retains the strongest properties for subdivision and development. Wholesale does not compete with subdivision — it complements it. Every property that enters the pipeline either becomes a high-upside hold or an immediate-profit wholesale exit.
                 </p>
                 <p className="text-text-secondary leading-relaxed">
-                  Wholesale revenue supports operating cash flow, solar farm maintenance, housing development, and broader reinvestment across the platform. This fast-turn monetization engine is what keeps the entire business operationally funded while higher-yield projects mature over longer timelines.
+                  Wholesale revenue supports operating cash flow, housing development, and broader reinvestment across the platform. This fast-turn monetization engine is what keeps the entire business operationally funded while higher-yield projects mature over longer timelines.
                 </p>
               </div>
 
@@ -395,7 +204,7 @@ export default function SolarRealEstate() {
                   <div className="space-y-3">
                     <SliderInput label="Response Rate" value={assumptions.realEstate.responseRate} min={0.005} max={0.03} step={0.001} onChange={(v) => setAssumption('realEstate', 'responseRate', v)} format={(v) => formatPercent(v)} />
                     <SliderInput label="Lead Conversion Rate" value={assumptions.realEstate.leadRate} min={0.20} max={0.60} step={0.05} onChange={(v) => setAssumption('realEstate', 'leadRate', v)} format={(v) => formatPercent(v)} />
-                    <SliderInput label="Close Rate" value={assumptions.realEstate.closeRate} min={0.05} max={0.25} step={0.01} onChange={(v) => setAssumption('realEstate', 'closeRate', v)} format={(v) => formatPercent(v)} />
+                    <SliderInput label="Close Rate" value={assumptions.realEstate.closeRate} min={0.35} max={0.80} step={0.01} onChange={(v) => setAssumption('realEstate', 'closeRate', v)} format={(v) => formatPercent(v)} />
                   </div>
                 </div>
                 <div className="luxury-card">
@@ -406,8 +215,7 @@ export default function SolarRealEstate() {
                   </div>
                   <div className="mt-4 space-y-2">
                     {[
-                      { label: 'Subdivision Allocation', value: formatPercent(1 - assumptions.realEstate.wholesaleAllocation - assumptions.realEstate.solarFarmAllocation) },
-                      { label: 'Solar Farm Allocation', value: formatPercent(assumptions.realEstate.solarFarmAllocation) },
+                      { label: 'Housing + Subdivision Allocation', value: formatPercent(assumptions.realEstate.housingSubdivideAllocation) },
                       { label: 'Operating Margin', value: '85%' },
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between py-1">
@@ -556,7 +364,7 @@ export default function SolarRealEstate() {
                       { label: 'Build Cost Per Home', value: formatCurrency(buildCost) },
                       { label: 'Market Value Per Home', value: formatCurrency(marketValue) },
                       { label: 'Profit Per Home', value: formatCurrency(profitPerHome) },
-                      { label: 'Profit Margin', value: '40%' },
+                      { label: 'Profit Margin', value: formatPercent(profitPerHome / marketValue) },
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between py-2 border-b border-surface-border">
                         <span className="text-text-secondary text-sm">{item.label}</span>
@@ -754,11 +562,11 @@ export default function SolarRealEstate() {
             <div className="space-y-8">
               <h2 className="font-display font-bold text-text-primary text-2xl">Integrated Revenue Model</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ChartCard title="Revenue by Pathway" subtitle="How each pathway contributes to total RE revenue">
+                <ChartCard title="Revenue by Pathway" subtitle="How each pathway contributes to total revenue">
                   <DonutChart
                     data={[
                       { name: 'Wholesale', value: y5.realEstate.wholesale.totalRevenue, color: '#c9a84c' },
-                      { name: 'Solar Farms', value: y5.realEstate.solarFarm.cumulativeSRECRevenue, color: '#f59e0b' },
+                      { name: 'Distributed Solar', value: y5.realEstate.distributedSolar.srecRevenue, color: '#f59e0b' },
                       { name: 'Housing', value: y5.realEstate.housing.totalMarketValue, color: '#2d6a4f' },
                       { name: 'Subdivision', value: y5.realEstate.subdivision.resaleRevenue, color: '#6366f1' },
                     ]}
@@ -769,10 +577,9 @@ export default function SolarRealEstate() {
                 <ChartCard title="Deal Allocation" subtitle="Year 5 deal routing">
                   <DonutChart
                     data={[
-                      { name: 'Wholesale (40%)', value: 40, color: '#c9a84c' },
-                      { name: 'Solar Farms (25%)', value: 25, color: '#f59e0b' },
-                      { name: 'Housing (20%)', value: 20, color: '#2d6a4f' },
-                      { name: 'Subdivision (15%)', value: 15, color: '#6366f1' },
+                      { name: 'Wholesale (65%)', value: 65, color: '#c9a84c' },
+                      { name: 'Housing (7%)', value: 7, color: '#2d6a4f' },
+                      { name: 'Subdivision (28%)', value: 28, color: '#6366f1' },
                     ]}
                     formatAs="percent"
                     centerLabel="Allocation"
@@ -795,12 +602,12 @@ export default function SolarRealEstate() {
                 ]}
                 columns={4}
               />
-              <ChartCard title="Real Estate Revenue by Pathway" subtitle="5-year stacked view">
+              <ChartCard title="Revenue by Pathway" subtitle="5-year stacked view">
                 <StackedBarChart
                   data={reSegmentRevenue}
                   bars={[
                     { key: 'Wholesale', label: 'Wholesale', color: '#c9a84c' },
-                    { key: 'Solar Farms', label: 'Solar Farms', color: '#f59e0b' },
+                    { key: 'Distributed Solar', label: 'Distributed Solar', color: '#f59e0b' },
                     { key: 'Housing', label: 'Housing', color: '#2d6a4f' },
                     { key: 'Subdivision', label: 'Subdivision', color: '#6366f1' },
                   ]}

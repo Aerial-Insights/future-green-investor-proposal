@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html class="theme-evergreen">
+<head>
+<style>
+  /* Exact same CSS variable definitions as the app */
+  .theme-evergreen {
+    --color-surface: 243 248 244;
+    --color-text-primary: 22 38 28;
+    --color-accent-gold: 74 124 89;
+  }
+  .theme-capital-blue {
+    --color-surface: 243 246 251;
+    --color-text-primary: 20 30 48;
+    --color-accent-gold: 58 107 163;
+  }
+
+  /* Exact same CSS Tailwind generates */
+  body {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--color-surface) / var(--tw-bg-opacity, 1));
+    color: rgb(var(--color-text-primary) / 1);
+    font-family: sans-serif;
+    padding: 40px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .accent-box {
+    display: inline-block;
+    padding: 16px 24px;
+    margin: 8px;
+    border-radius: 8px;
+    background-color: rgb(var(--color-accent-gold) / 0.15);
+    color: rgb(var(--color-accent-gold) / 1);
+    font-weight: 600;
+  }
+  button {
+    padding: 12px 24px;
+    margin: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid rgb(var(--color-accent-gold) / 0.4);
+    background: rgb(var(--color-surface) / 1);
+    color: rgb(var(--color-text-primary) / 1);
+    border-radius: 8px;
+  }
+  button:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+  <h1>Theme Switching Test</h1>
+  <p>Click these buttons. The entire page should change color:</p>
+  <div style="margin: 20px 0;">
+    <button onclick="switchTheme('theme-evergreen')">🌿 Evergreen (Green)</button>
+    <button onclick="switchTheme('theme-capital-blue')">💎 Capital Blue</button>
+  </div>
+  <div class="accent-box">Accent colored box</div>
+  <p id="info" style="margin-top: 20px; font-family: monospace;"></p>
+  <script>
+    function switchTheme(cls) {
+      document.documentElement.classList.remove('theme-evergreen', 'theme-capital-blue');
+      document.documentElement.classList.add(cls);
+      updateInfo();
+    }
+    function updateInfo() {
+      var cls = document.documentElement.className;
+      var s = getComputedStyle(document.documentElement);
+      var surface = s.getPropertyValue('--color-surface').trim();
+      var text = s.getPropertyValue('--color-text-primary').trim();
+      var bg = s.getPropertyValue('background-color') || getComputedStyle(document.body).backgroundColor;
+      document.getElementById('info').innerHTML =
+        'Class: <b>' + cls + '</b><br>' +
+        '--color-surface: <b>' + surface + '</b><br>' +
+        '--color-text-primary: <b>' + text + '</b><br>' +
+        'body background-color: <b>' + bg + '</b>';
+    }
+    updateInfo();
+  </script>
+</body>
+</html>

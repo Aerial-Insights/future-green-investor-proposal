@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.t-dark { --bg: #0a0a0a; --fg: #fafafa; }
+.t-green { --bg: #F6FAF8; --fg: #1F2D27; }
+.t-blue { --bg: #F5F8FC; --fg: #1D2A3A; }
+html, body { margin:0; padding:40px; min-height:100vh; background:var(--bg); color:var(--fg); font:20px sans-serif; transition:.3s; }
+button { font:18px sans-serif; padding:12px 24px; margin:8px; cursor:pointer; }
+</style>
+</head>
+<body class="t-dark">
+<h1>BASIC THEME TEST</h1>
+<p>If clicking these buttons changes the page color, CSS vars work fine.</p>
+<button onclick="document.body.className='t-dark'">DARK</button>
+<button onclick="document.body.className='t-green'">GREEN</button>
+<button onclick="document.body.className='t-blue'">BLUE</button>
+<p id="d"></p>
+<script>setInterval(()=>{document.getElementById('d').textContent='class='+document.body.className+' bg='+getComputedStyle(document.body).backgroundColor},200)</script>
+</body>
+</html>

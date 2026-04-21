@@ -1,5 +1,5 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { CHART_COLORS, AXIS_STYLE, TOOLTIP_STYLE, GRID_STYLE, CHART_ANIMATION } from '../../theme/chartTheme'
+import { CHART_COLORS, useChartTheme, CHART_ANIMATION } from '../../theme/chartTheme'
 import { formatCurrency } from '../../utils/formatCurrency'
 
 interface AreaChartProps {
@@ -19,6 +19,8 @@ export default function AreaChartComponent({
   height = 300,
   formatValue = (v) => formatCurrency(v),
 }: AreaChartProps) {
+  const { axisStyle, tooltipStyle, gridStyle } = useChartTheme()
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -28,10 +30,10 @@ export default function AreaChartComponent({
             <stop offset="95%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid {...GRID_STYLE} />
-        <XAxis dataKey="name" {...AXIS_STYLE} />
-        <YAxis {...AXIS_STYLE} tickFormatter={formatValue} />
-        <Tooltip {...TOOLTIP_STYLE} formatter={(value: number) => formatValue(value)} />
+        <CartesianGrid {...gridStyle} />
+        <XAxis dataKey="name" {...axisStyle} />
+        <YAxis {...axisStyle} tickFormatter={formatValue} />
+        <Tooltip {...tooltipStyle} formatter={(value: number) => formatValue(value)} />
         <Area
           type="monotone"
           dataKey={dataKey}

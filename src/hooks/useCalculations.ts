@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useAssumptionsStore } from '../store/useAssumptionsStore'
-import { calcAllYears, calcInvestorReturns, calcLongTermSREC } from '../data/investorPortal/formulas'
-import type { YearlyOutputs, InvestorReturnSummary, LongTermSRECSummary } from '../data/investorPortal/formulas/types'
+import { calcAllYears, calcInvestorReturns, calcLongTermSREC, calcAerialResiduals } from '../data/investorPortal/formulas'
+import type { YearlyOutputs, InvestorReturnSummary, LongTermSRECSummary, AerialResidualSummary } from '../data/investorPortal/formulas/types'
 
 export function useCalculations(years: number = 5): YearlyOutputs[] {
   const assumptions = useAssumptionsStore((s) => s.assumptions)
@@ -28,4 +28,13 @@ export function useInvestorReturns(): InvestorReturnSummary {
 export function useLongTermSREC(): LongTermSRECSummary {
   const years = useCalculations()
   return useMemo(() => calcLongTermSREC(years), [years])
+}
+
+export function useAerialResiduals(): AerialResidualSummary {
+  const years = useCalculations()
+  const assumptions = useAssumptionsStore((s) => s.assumptions)
+  return useMemo(
+    () => calcAerialResiduals(years, assumptions),
+    [years, assumptions]
+  )
 }

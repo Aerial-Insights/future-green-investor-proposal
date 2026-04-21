@@ -5,9 +5,9 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 rounded-md bg-gradient-to-br from-accent-gold to-accent-gold-dim flex items-center justify-center">
-              <span className="text-surface font-display font-bold text-xs">U</span>
+              <span className="font-display font-bold text-xs" style={{ color: 'var(--color-logo-text)' }}>U</span>
             </div>
-            <span className="text-text-muted text-sm">Unity Capital Group</span>
+            <span className="text-text-muted text-sm">Future Green Capital Group</span>
           </div>
           <p className="text-text-dim text-xs">
             Confidential Investment Materials — For Qualified Investors Only

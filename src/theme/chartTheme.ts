@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 export const CHART_COLORS = {
   primary: '#c9a84c',
   secondary: '#2d6a4f',
@@ -25,6 +27,53 @@ export const DIVISION_COLORS = {
   aerialInsights: '#6366f1',
 }
 
+function getCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
+export function useChartTheme() {
+  return useMemo(() => {
+    const axisStroke = getCSSVar('--color-chart-axis-stroke')
+    const axisFill = getCSSVar('--color-chart-axis-fill')
+    const tooltipBg = getCSSVar('--color-chart-tooltip-bg')
+    const tooltipBorder = getCSSVar('--color-chart-tooltip-border')
+    const gridStroke = getCSSVar('--color-chart-grid')
+    const textPrimary = getCSSVar('--color-text-primary')
+    const textSecondary = getCSSVar('--color-text-secondary')
+
+    return {
+      axisStyle: {
+        stroke: axisStroke,
+        fontSize: 12,
+        fill: axisFill,
+        fontFamily: 'Inter, system-ui, sans-serif',
+      },
+      tooltipStyle: {
+        contentStyle: {
+          backgroundColor: tooltipBg,
+          border: `1px solid ${tooltipBorder}`,
+          borderRadius: 8,
+          color: textPrimary,
+          fontSize: 13,
+          fontFamily: 'Inter, system-ui, sans-serif',
+        },
+        cursor: { stroke: getCSSVar('--color-accent-gold'), strokeWidth: 1, strokeDasharray: '4 4' },
+      },
+      gridStyle: {
+        strokeDasharray: '3 3',
+        stroke: gridStroke,
+      },
+      legendStyle: {
+        fontSize: 12,
+        color: textSecondary,
+      },
+      textPrimary,
+      textSecondary,
+    }
+  }, [])
+}
+
+// Keep legacy exports for backward compatibility during migration
 export const AXIS_STYLE = {
   stroke: '#404040',
   fontSize: 12,

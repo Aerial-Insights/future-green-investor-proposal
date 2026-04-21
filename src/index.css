@@ -2,10 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme variables are applied as inline styles on <html> via JavaScript.
+   See src/theme/themeValues.ts and index.html for definitions.
+   No CSS-selector-based theme blocks needed — inline styles always win. */
+
 @layer base {
   html {
     @apply bg-surface text-text-primary font-body antialiased;
     scroll-behavior: smooth;
+    color-scheme: var(--color-scheme);
   }
 
   body {
@@ -40,6 +45,14 @@
 
   .luxury-card:hover {
     @apply shadow-card-hover border-surface-light;
+  }
+
+  .luxury-card-highlighted {
+    @apply border-accent-gold/40 bg-accent-gold/5;
+  }
+
+  .luxury-card-highlighted:hover {
+    @apply border-accent-gold/60;
   }
 
   .gold-gradient-text {

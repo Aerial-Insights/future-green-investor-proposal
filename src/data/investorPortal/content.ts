@@ -1,7 +1,7 @@
 // ─── GLOBAL ──────────────────────────────────────────────────────────────────
 
-export const PLATFORM_NAME = 'Unity Capital Group'
-export const CAPITAL_RAISE = '$39.98M'
+export const PLATFORM_NAME = 'Future Green Capital Group'
+export const CAPITAL_RAISE = '$40M'
 export const GEOGRAPHY = 'Mid-Atlantic & Southeast United States'
 export const RETURN_WINDOW = '5-Year Deployment Horizon'
 
@@ -16,15 +16,15 @@ export const HERO_SUBTITLE =
 export const OVERVIEW = {
   headline: 'A Platform Built to Compound',
   thesis: INVESTMENT_THESIS,
-  capitalRaise: '$39.98M Growth Capital',
+  capitalRaise: '$40M Growth Capital',
   geography: GEOGRAPHY,
   returnWindow: RETURN_WINDOW,
   introCopy:
-    'Unity Capital Group operates an integrated platform spanning direct-to-consumer home services, solar energy installations, real estate acquisition and development, and a proprietary aerial intelligence SaaS platform. Each division reinforces the others — creating compounding advantages in customer acquisition, asset creation, and long-term revenue generation.',
+    'Future Green Capital Group operates an integrated platform spanning direct-to-consumer home services, solar energy installations, real estate acquisition and development, and a proprietary aerial intelligence SaaS platform. Each division reinforces the others — creating compounding advantages in customer acquisition, asset creation, and long-term revenue generation.',
   whyThisWins: [
     {
       title: 'Immediate Revenue + Long-Term Assets',
-      description: 'Home services and wholesale generate day-one cash flow while solar farms and housing developments build appreciating asset portfolios.',
+      description: 'Home services and wholesale generate day-one cash flow while distributed solar installs and housing developments build appreciating asset portfolios.',
     },
     {
       title: 'Internal Lead Generation Advantage',
@@ -36,7 +36,7 @@ export const OVERVIEW = {
     },
     {
       title: 'Asset Ownership & Recurring Revenue',
-      description: 'Solar farm energy sales, SREC credits, and stabilized rental income create predictable long-duration revenue streams.',
+      description: 'Distributed solar SREC credits and stabilized rental income create predictable long-duration revenue streams.',
     },
     {
       title: 'Technology-Driven Cost Advantage',
@@ -48,9 +48,9 @@ export const OVERVIEW = {
 // ─── OVERVIEW — STRATEGIC SUMMARY ────────────────────────────────────────────
 
 export const OVERVIEW_PLATFORM_SUMMARY = [
-  'Unity Capital Group is building a vertically integrated platform powered by proprietary AI-driven property intelligence. Our technology identifies high-probability exterior property issues — roofing damage, siding deterioration, gutter failures — creating a significant competitive advantage in customer acquisition cost and lead quality.',
+  'Future Green Capital Group is building a vertically integrated platform powered by proprietary AI-driven property intelligence. Our technology identifies high-probability exterior property issues — roofing damage, siding deterioration, gutter failures — creating a significant competitive advantage in customer acquisition cost and lead quality.',
   'These AI-generated leads convert into immediate revenue through a scalable home services operation spanning roofing, insulation, HVAC, and energy efficiency upgrades. From there, we expand revenue per customer through systematic cross-selling of additional services including solar installations, water heaters, and air sealing.',
-  'In parallel, the platform deploys capital into real estate acquisition and solar farm development — creating long-term appreciating assets that serve as both a hedge and a durable income strategy. Land is sourced below market through direct-to-owner campaigns and routed into wholesale, housing development, or utility-scale solar.',
+  'In parallel, the platform deploys capital into real estate acquisition and distributed solar development — creating long-term appreciating assets that serve as both a hedge and a durable income strategy. Land is sourced below market through direct-to-owner campaigns and routed into wholesale and housing development, while marketing-driven solar lead generation builds a growing portfolio of distributed installs generating recurring SREC revenue.',
   'The result is a system that generates three distinct value streams simultaneously: immediate cash flow from service operations, scalable recurring revenue from an expanding customer base, and long-term asset appreciation through energy and real estate holdings.',
 ]
 
@@ -69,7 +69,7 @@ export const OVERVIEW_HOW_IT_WORKS = [
   },
   {
     title: 'Asset Deployment',
-    description: 'Profits and raised capital flow into real estate acquisitions and solar farm development, building appreciating assets that generate recurring energy and rental income.',
+    description: 'Profits and raised capital flow into real estate acquisitions and distributed solar development, building appreciating assets that generate recurring SREC and rental income.',
   },
 ]
 
@@ -81,10 +81,10 @@ export const OVERVIEW_NAV_GUIDE = [
     whyItMatters: 'Validates the core revenue model and demonstrates scalable, repeatable cash generation from day one.',
   },
   {
-    title: 'Solar & Real Estate',
+    title: 'Real Estate',
     route: '/solar-real-estate',
-    description: 'Long-term asset strategy — land acquisition funnel, wholesale operations, solar farm development, and housing.',
-    whyItMatters: 'Shows how capital is preserved and grown through appreciating assets with recurring income streams.',
+    description: 'Long-term asset strategy — distributed solar portfolio, wholesale operations, land acquisition funnel, and housing development.',
+    whyItMatters: 'Shows how capital is preserved and grown through appreciating assets with recurring SREC and rental income streams.',
   },
   {
     title: 'Aerial Insights',
@@ -110,12 +110,6 @@ export const OVERVIEW_NAV_GUIDE = [
     description: 'Portfolio-level analysis — job creation, energy impact, housing development, and community economic output.',
     whyItMatters: 'Shows the broader value creation beyond financial returns, including ESG alignment and regional impact.',
   },
-  {
-    title: 'Next Steps',
-    route: '/next-step',
-    description: 'Investment process — capital deployment plan, partnership structure, and how to engage with the opportunity.',
-    whyItMatters: 'Provides a clear path from interest to action with defined next steps for qualified investors.',
-  },
 ]
 
 // ─── HOME SERVICES — OPERATIONAL MODEL ──────────────────────────────────────
@@ -125,9 +119,9 @@ export const HOME_SERVICES_OPERATIONAL_MODEL = {
     title: 'Sales Infrastructure',
     items: [
       { label: 'Primary Channel', value: 'Door-to-door sales' },
-      { label: 'Daily Activity', value: '40–50 doors per rep per day' },
-      { label: 'Current Sales Team', value: '10 reps' },
-      { label: 'Target Sales Team', value: '75+ reps by Year 5' },
+      { label: 'Daily Activity', value: '30 doors per rep per day' },
+      { label: 'Current Sales Team', value: '15 reps' },
+      { label: 'Target Sales Team', value: '42+ reps by Year 5' },
     ],
     description: 'The sales engine is built on a proven door-to-door model that scales linearly with rep count. Each rep operates in AI-optimized territories with property-level intelligence, significantly improving hit rates versus cold canvassing.',
   },
@@ -149,7 +143,7 @@ export const HOME_SERVICES_OPERATIONAL_MODEL = {
       { label: 'Cross-Sell Services', value: 'HVAC, insulation, solar, energy' },
       { label: 'Goal', value: 'Maximize revenue per customer' },
     ],
-    description: 'Every roofing customer is a gateway to 6+ additional service lines. The 15–20% upsell rate compounds significantly at scale — at 75+ reps generating hundreds of roofing jobs monthly, the secondary revenue stream becomes a major profit driver.',
+    description: 'Every roofing customer is a gateway to 6+ additional service lines. The 15–20% upsell rate compounds significantly at scale — at 42+ reps generating hundreds of roofing jobs monthly, the secondary revenue stream becomes a major profit driver.',
   },
 }
 
@@ -161,12 +155,12 @@ export const SALES_ENGINE_CHANNELS = {
     subtitle: 'High-volume, high-touch residential canvassing powered by AI-optimized routing',
     strategy: 'Door-to-door remains the highest-conversion residential sales channel in home services. Reps canvass AI-selected neighborhoods where Aerial Insights has identified high-probability roofing and exterior issues, dramatically improving hit rates versus traditional cold-knocking.',
     metrics: [
-      { label: 'Doors Per Rep Per Day', value: '40–50' },
+      { label: 'Doors Per Rep Per Day', value: '30' },
       { label: 'Conversion Rate', value: '1.5% doors to jobs' },
       { label: 'Working Days', value: '5 days/week' },
       { label: 'Growth Model', value: 'Linear with rep count' },
     ],
-    whyScalable: 'Adding reps directly increases door volume and job count. With AI-optimized territories, each additional rep operates at near-peak efficiency from day one. The model scales from 10 to 75+ reps without diminishing returns because Aerial Insights continuously identifies new high-probability territories.',
+    whyScalable: 'Adding reps directly increases door volume and job count. With AI-optimized territories, each additional rep operates at near-peak efficiency from day one. The model scales from 15 to 42+ reps without diminishing returns because Aerial Insights continuously identifies new high-probability territories.',
   },
   directMail: {
     title: 'Direct Mail (Roofing Focus)',
@@ -274,14 +268,14 @@ export const HOME_SERVICES = {
 // ─── SOLAR & REAL ESTATE ─────────────────────────────────────────────────────
 
 export const SOLAR_REAL_ESTATE = {
-  headline: 'The Real Estate & Development Engine',
-  subtitle: 'Deploying capital into real estate-backed opportunities with development upside, tangible asset creation, and long-duration cash flow generation.',
+  headline: 'The Real Estate Engine',
+  subtitle: 'A marketing-driven distributed solar portfolio combined with real estate-backed opportunities — generating recurring SREC revenue and tangible asset creation.',
   overviewNarrative:
-    'This division focuses on deploying capital into real estate-backed opportunities that create both development upside and lasting asset value. The strategy centers on acquiring land and converting it into high-value uses across four core verticals: solar farm development for long-duration cash flow and SREC-related revenue, land acquisition for below-market sourcing, housing development for high-margin build-and-sell execution, and land subdivision to unlock hidden value in underutilized acreage. Together, these verticals create an important hedge to the broader operating business — capital is deployed into tangible, appreciating assets that generate returns independent of service revenue cycles.',
+    'This division combines a marketing-driven distributed solar portfolio with real estate acquisition and development. The solar strategy centers on generating leads through targeted marketing campaigns, converting those leads into residential, commercial, and institutional solar installations, and building cumulative SREC revenue that compounds year over year. In parallel, capital is deployed into land acquisition for wholesale, housing development, and subdivision — creating tangible, appreciating assets that generate returns independent of service revenue cycles.',
   strategyDetail:
-    'Solar farms create long-duration cash flow streams that can benefit from premium SREC-related revenue in qualifying markets. Housing development creates high-margin exit opportunities through disciplined build-and-sell execution. Land subdivision allows the business to unlock hidden value in underutilized acreage by reconfiguring parcels into higher-value individual lots. Each pathway is designed to convert acquired land into its highest-value use, maximizing return on deployed capital while building a portfolio of real assets.',
+    'The distributed solar model uses a monthly marketing ramp — scaling from $50K/month in Year 1 to $200K/month by Year 5 — to build a growing portfolio of installations. At a $200 blended lead cost and 8% conversion rate, installations ramp alongside marketing spend. Each install generates two revenue streams: a one-time installation fee ($28K average) that counts toward investor payback, and 12 SRECs annually at $400 per credit ($4,800/year) that provide long-duration recurring income for 20+ years. Housing development creates high-margin exit opportunities through disciplined build-and-sell execution. Land subdivision unlocks hidden value in underutilized acreage.',
   pathways: [
-    { name: 'Solar Farms', description: 'Long-duration cash flow through energy generation and SREC revenue', icon: 'sun' },
+    { name: 'Distributed Solar', description: 'Marketing-driven solar installations generating recurring SREC revenue', icon: 'sun' },
     { name: 'Land Acquisition', description: 'Below-market sourcing through direct-to-owner campaigns', icon: 'map' },
     { name: 'Housing Development', description: 'High-margin profit through build-and-sell execution', icon: 'building' },
     { name: 'Subdivision', description: 'Value maximization through parcel reconfiguration and lot splitting', icon: 'grid' },
@@ -372,7 +366,7 @@ export const AERIAL_INSIGHTS = {
 
 export const STRATEGIC_IMPACT = {
   headline: 'Building More Than Returns',
-  subtitle: 'Unity Capital Group creates measurable economic, environmental, and social impact alongside financial performance.',
+  subtitle: 'Future Green Capital Group creates measurable economic, environmental, and social impact alongside financial performance.',
   impacts: [
     {
       title: 'Job Creation',
@@ -382,13 +376,13 @@ export const STRATEGIC_IMPACT = {
     },
     {
       title: 'Energy Impact',
-      metric: '25+ MW',
-      description: 'Solar capacity installed and operational, displacing fossil fuel generation and earning premium SREC credits.',
+      metric: '2,900+ Installs',
+      description: 'Cumulative distributed solar installations across residential, commercial, and institutional properties, generating growing SREC revenue by Year 5.',
       icon: 'zap',
     },
     {
       title: 'Housing Impact',
-      metric: '200+ Units',
+      metric: '135+ Units',
       description: 'Affordable and workforce housing units developed, addressing critical housing supply gaps in underserved markets.',
       icon: 'home',
     },
@@ -415,6 +409,18 @@ export const STRATEGIC_IMPACT = {
       metric: 'Integrated Moat',
       description: 'Vertical integration across services, energy, real estate, and technology creates barriers that point solutions cannot replicate.',
       icon: 'lock',
+    },
+    {
+      title: 'Environmental Sustainability',
+      metric: '50,000+ Audits',
+      description: 'Comprehensive home energy audits driving measurable reductions in carbon emissions, energy waste, and utility costs — backed by EPA Lead-Safe certification, Energy Star recognition, and MIT sustainable energy expertise.',
+      icon: 'leaf',
+    },
+    {
+      title: 'Industry Credentials',
+      metric: '7+ Certifications',
+      description: 'A rigorous portfolio of federal, institutional, and industry certifications — including LEED AP, BPI, GPRO, MIT Sustainable Energy, and EPA Lead-Safe — establishing regulatory depth and institutional credibility.',
+      icon: 'award',
     },
   ],
 }
@@ -692,7 +698,52 @@ export const QUALIFICATIONS = {
       ],
     },
   ],
-  totalSubcontractors: 32,
+  totalSubcontractors: 18,
+
+  featuredSubcontractors: [
+    {
+      name: 'Greenscape Energy',
+      category: 'Solar Partner',
+      summary:
+        'A regional solar and sustainability firm serving the Washington DC, Maryland, and Virginia corridor for over a decade. Greenscape Energy has completed more than 13,000 installations and operates as an approved provider under the DC Solar for All program — a $32M initiative expanding solar access across the District. The company brings institutional-grade project execution to the platform, with a 15-year working relationship backing the partnership.',
+      capabilities: [
+        'DC, Maryland & Virginia service footprint',
+        'DC Solar for All approved provider',
+        'Large-scale commercial solar — including a 584 kW Howard University system across 9 buildings',
+        'Sustainability and LED lighting upgrades — including the National Cathedral',
+      ],
+      whyItMatters:
+        'Provides the platform with proven, high-volume solar installation capacity and direct access to government-funded residential solar programs across the DMV region.',
+    },
+    {
+      name: 'Cecil & Sons Heating and Cooling',
+      category: 'HVAC Partner',
+      summary:
+        'A full-service HVAC contractor operating across Maryland, Northern Virginia, and Washington DC since 2013. Cecil & Sons provides residential and commercial HVAC installation, repair, maintenance, and duct cleaning services. The firm holds a BBB A+ rating and is partnered with Ruud for equipment supply — providing reliable access to heating and cooling capacity across the company\'s primary service geography.',
+      capabilities: [
+        'Full HVAC lifecycle — sales, installation, repair & maintenance',
+        'Duct cleaning and indoor air quality services',
+        'Maryland, Northern Virginia & DC coverage',
+        'BBB A+ rated with Ruud equipment partnership',
+      ],
+      whyItMatters:
+        'Delivers dependable HVAC installation and service depth across the company\'s core markets, supporting both standalone HVAC jobs and bundled whole-home upgrade workflows.',
+    },
+    {
+      name: 'Argueta\'s True R-Value Insulation',
+      category: 'Insulation & Weatherization Partner',
+      summary:
+        'A Northern Virginia-based insulation and weatherization contractor specializing in blown-in insulation, spray foam, crawlspace encapsulation, and air sealing. Based in Sterling, VA, the firm is HomeAdvisor rated and serves as a core execution partner for the platform\'s energy-efficiency and weatherization service lines.',
+      capabilities: [
+        'Blown-in insulation and spray foam installation',
+        'Crawlspace encapsulation and moisture control',
+        'Air sealing and building envelope tightening',
+        'HomeAdvisor rated — Northern Virginia coverage',
+      ],
+      whyItMatters:
+        'Anchors the platform\'s insulation and weatherization capacity in Northern Virginia — a high-demand service category that pairs with nearly every energy-efficiency upgrade and grant-funded retrofit.',
+    },
+  ],
 
   // ── Audit & QC Subcontractors ──
   auditPartner: {
@@ -734,17 +785,4 @@ export const QUALIFICATIONS = {
       },
     ],
   },
-}
-
-// ─── NEXT STEP ───────────────────────────────────────────────────────────────
-
-export const NEXT_STEP = {
-  headline: 'The Opportunity Is Now',
-  subtitle: 'Join a platform designed for compounding growth, asset creation, and long-term value.',
-  summary:
-    'Unity Capital Group presents a rare combination: immediate cash flow from proven service operations, long-term asset creation through solar and real estate, and a proprietary technology moat that compounds competitive advantage over time. The $39.98M capital raise deploys into a fully integrated platform with clear execution pathways across every division.',
-  capitalAsk: '$39.98M Growth Capital Deployment',
-  closingNarrative:
-    'This is not a single-product bet. It is a platform investment with diversified revenue streams, compounding advantages, and a team executing in market today. The capital deploys immediately into revenue-generating operations while simultaneously building long-duration assets that appreciate and produce income for years to come.',
-  cta: 'Schedule a Conversation',
 }

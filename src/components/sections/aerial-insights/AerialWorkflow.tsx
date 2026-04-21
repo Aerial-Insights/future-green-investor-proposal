@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { staggerContainer, staggerItem } from '../../../theme/animations'
+import { staggerContainer, staggerItem, fadeIn } from '../../../theme/animations'
 import { AERIAL_INSIGHTS } from '../../../data/investorPortal/content'
 
 export default function AerialWorkflow() {
@@ -11,6 +11,26 @@ export default function AerialWorkflow() {
           A 9-stage intelligence pipeline that transforms raw imagery into actionable, scored property leads — fully automated, scalable, and precise.
         </p>
       </div>
+
+      {/* ── DETECTION OUTPUT SHOWCASE ──────────────────────────────────── */}
+      <motion.div
+        variants={fadeIn}
+        initial="initial"
+        animate="animate"
+        className="group rounded-2xl overflow-hidden border border-surface-border bg-surface-elevated"
+      >
+        <div className="overflow-hidden">
+          <img
+            src="/images/aerial-detection.png"
+            alt="Object detection pipeline output — bounding box identification"
+            className="w-full h-64 sm:h-80 md:h-96 object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+        </div>
+        <div className="px-5 py-3 border-t border-surface-border flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#6366f1] shrink-0" />
+          <p className="text-text-muted text-xs font-medium tracking-wide">Object Detection — Stage 4 of the Intelligence Pipeline</p>
+        </div>
+      </motion.div>
 
       <motion.div
         variants={staggerContainer}

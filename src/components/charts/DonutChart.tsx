@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
-import { CHART_COLOR_ARRAY, TOOLTIP_STYLE, CHART_ANIMATION } from '../../theme/chartTheme'
+import { CHART_COLOR_ARRAY, useChartTheme, CHART_ANIMATION } from '../../theme/chartTheme'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatPercentRaw } from '../../utils/formatPercent'
 
@@ -31,6 +31,7 @@ export default function DonutChart({
   centerValue,
 }: DonutChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0)
+  const { tooltipStyle, legendStyle, textSecondary, textPrimary } = useChartTheme()
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -51,7 +52,7 @@ export default function DonutChart({
           ))}
         </Pie>
         <Tooltip
-          {...TOOLTIP_STYLE}
+          {...tooltipStyle}
           formatter={(value: number) => {
             if (formatAs === 'percent') {
               const pct = total > 0 ? (value / total) * 100 : 0
@@ -60,14 +61,14 @@ export default function DonutChart({
             return formatCurrency(value, false)
           }}
         />
-        {showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#a3a3a3' }} />}
+        {showLegend && <Legend wrapperStyle={legendStyle} />}
         {/* Center text rendered via SVG */}
         {centerLabel && (
           <>
-            <text x="50%" y="46%" textAnchor="middle" fill="#a3a3a3" fontSize={11}>
+            <text x="50%" y="46%" textAnchor="middle" style={{ fill: textSecondary }} fontSize={11}>
               {centerLabel}
             </text>
-            <text x="50%" y="56%" textAnchor="middle" fill="#fafafa" fontSize={18} fontWeight={700} fontFamily="Sora, sans-serif">
+            <text x="50%" y="56%" textAnchor="middle" style={{ fill: textPrimary }} fontSize={18} fontWeight={700} fontFamily="Sora, sans-serif">
               {centerValue}
             </text>
           </>

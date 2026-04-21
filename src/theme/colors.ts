@@ -1,3 +1,21 @@
+// Theme colors are now defined as CSS custom properties in index.css.
+// This file provides a helper to read current theme values at runtime,
+// and keeps the static palette for contexts that need hardcoded values
+// (e.g. division-specific branding colors that don't change per theme).
+
+export function getThemeColor(varName: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+}
+
+// Static division branding colors (theme-independent)
+export const divisionColors = {
+  homeServices: '#c9a84c',
+  solar: '#f59e0b',
+  realEstate: '#2d6a4f',
+  aerialInsights: '#6366f1',
+}
+
+// Legacy export for any remaining consumers
 export const colors = {
   surface: {
     base: '#0a0a0a',
