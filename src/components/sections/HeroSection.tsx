@@ -10,6 +10,7 @@ interface HeroSectionProps {
   primaryCta?: { label: string; to: string }
   secondaryCta?: { label: string; to: string }
   tertiaryCta?: { label: string; to: string }
+  featuredCta?: { label: string; caption?: string; to: string }
 }
 
 export default function HeroSection({
@@ -20,6 +21,7 @@ export default function HeroSection({
   primaryCta,
   secondaryCta,
   tertiaryCta,
+  featuredCta,
 }: HeroSectionProps) {
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
@@ -107,6 +109,72 @@ export default function HeroSection({
               </Link>
             )}
           </motion.div>
+
+          {featuredCta && (
+            <motion.div
+              variants={slideUp}
+              initial="initial"
+              animate="animate"
+              className="mt-6 max-w-2xl"
+            >
+              <Link
+                to={featuredCta.to}
+                className="group relative flex items-center justify-between gap-4 w-full px-7 py-5 rounded-xl overflow-hidden bg-gradient-to-r from-accent-gold via-accent-gold-light to-accent-gold text-surface shadow-glow hover:shadow-glow-strong transition-all duration-300 hover:scale-[1.01]"
+                style={{ backgroundSize: '200% 100%', backgroundPosition: '0% 50%' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundPosition = '100% 50%' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundPosition = '0% 50%' }}
+              >
+                {/* Shimmer */}
+                <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{
+                    background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)',
+                    transform: 'translateX(-100%)',
+                    animation: 'none',
+                  }}
+                />
+
+                <div className="relative flex items-center gap-4 min-w-0">
+                  {/* Document icon */}
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-surface/15 border border-surface/20 flex items-center justify-center backdrop-blur-sm">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="8" y1="13" x2="16" y2="13" />
+                      <line x1="8" y1="17" x2="13" y2="17" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold opacity-70 mb-0.5">
+                      {featuredCta.caption ?? 'Confidential Document'}
+                    </p>
+                    <p className="font-display font-bold text-base sm:text-lg tracking-tight truncate">
+                      {featuredCta.label}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative flex items-center gap-2 flex-shrink-0">
+                  <span className="hidden sm:inline text-[11px] uppercase tracking-[0.2em] font-semibold opacity-80">
+                    Open
+                  </span>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </div>
+              </Link>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </section>

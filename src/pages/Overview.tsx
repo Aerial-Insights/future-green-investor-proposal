@@ -69,6 +69,11 @@ export default function Overview() {
         primaryCta={{ label: 'Explore the Platform', to: '/home-services' }}
         secondaryCta={{ label: 'View Financial Model', to: '/financial-model' }}
         tertiaryCta={{ label: 'Adjust Assumptions', to: '/assumptions-lab' }}
+        featuredCta={{
+          caption: 'Private Investor Document',
+          label: 'Read the Confidential Investment Memorandum',
+          to: '/investor-memo',
+        }}
       />
 
       <div className="section-container py-16 space-y-20">

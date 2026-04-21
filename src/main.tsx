@@ -13,6 +13,7 @@ const FinancialModel = lazy(() => import('./pages/FinancialModel'))
 const AssumptionsLab = lazy(() => import('./pages/AssumptionsLab'))
 const StrategicImpact = lazy(() => import('./pages/StrategicImpact'))
 const Qualifications = lazy(() => import('./pages/Qualifications'))
+const InvestorMemo = lazy(() => import('./pages/InvestorMemo'))
 
 function PageLoader() {
   return (
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       { path: 'assumptions-lab', element: wrap(AssumptionsLab) },
       { path: 'strategic-impact', element: wrap(StrategicImpact) },
     ],
+  },
+  {
+    path: '/investor-memo',
+    element: wrap(InvestorMemo),
   },
 ])
 

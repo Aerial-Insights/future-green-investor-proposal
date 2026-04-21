@@ -63,3 +63,23 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 }
+
+/* Print-friendly styles for the investor memo */
+@media print {
+  html, body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  nav, button {
+    display: none !important;
+  }
+  .luxury-card {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

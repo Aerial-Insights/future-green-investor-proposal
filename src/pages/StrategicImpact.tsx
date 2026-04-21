@@ -89,8 +89,8 @@ export default function StrategicImpact() {
           className="mt-12 rounded-2xl overflow-hidden border border-accent-green/20 group"
         >
           <img
-            src="/images/aerial-detection-confidence.jpeg"
-            alt="AI-powered aerial property detection with confidence scoring"
+            src="/images/strategic-impact-hero.png"
+            alt="Strategic impact overview"
             className="w-full h-64 sm:h-80 md:h-96 object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           />
           <div className="px-6 py-4 bg-surface-elevated border-t border-accent-green/15">

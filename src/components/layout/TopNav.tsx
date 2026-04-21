@@ -22,9 +22,10 @@ export default function TopNav() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-3 shrink-0">
-            <img src="/images/logo.png" alt="Future Green Capital Group" className="w-16 h-16 object-contain" />
-            <span className="font-display font-semibold text-text-primary text-sm tracking-wide hidden sm:block">
-              Future Green Capital Group
+            <img src="/images/logo.png" alt="Future Green Capital Group" className="w-[60px] h-[60px] object-contain rounded-lg" />
+            <span className="font-display font-semibold text-text-primary text-lg tracking-wide hidden sm:flex flex-col leading-tight">
+              <span>Future Green</span>
+              <span>Capital Group</span>
             </span>
           </NavLink>
 
