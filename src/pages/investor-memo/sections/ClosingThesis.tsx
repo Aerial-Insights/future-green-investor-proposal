@@ -46,7 +46,12 @@ export default function ClosingThesis() {
           {MEMO.closingCTA}
         </p>
         <p className="font-display font-semibold text-text-primary text-xl tracking-tight">{PLATFORM_NAME}</p>
-        <p className="text-text-muted text-[11px] uppercase tracking-[0.2em] mt-2">Confidential Investment Memorandum</p>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-text-secondary text-[12px] tracking-[0.04em]">
+          <span className="font-semibold text-text-primary">Future Green Energy Group</span>
+          <span className="text-accent-gold">×</span>
+          <span className="font-semibold text-text-primary">International Petrotech and Investments Inc.</span>
+        </div>
+        <p className="text-text-muted text-[11px] uppercase tracking-[0.2em] mt-4">Confidential Investment Memorandum</p>
       </motion.div>
 
       {/* Disclaimer */}

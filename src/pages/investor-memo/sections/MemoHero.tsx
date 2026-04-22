@@ -58,6 +58,21 @@ export default function MemoHero() {
           {PLATFORM_NAME}
         </motion.h1>
 
+        {/* Joint venture attribution */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+          className="space-y-3"
+        >
+          <p className="text-text-muted text-[11px] sm:text-xs uppercase tracking-[0.3em]">A Joint Venture of</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-display text-[clamp(1.25rem,2.6vw,2rem)] font-semibold text-text-primary leading-[1.15] tracking-[-0.01em]">
+            <span>Future Green Energy Group</span>
+            <span className="text-accent-gold font-light text-[0.9em]">×</span>
+            <span>International Petrotech and Investments Inc.</span>
+          </div>
+        </motion.div>
+
         {/* Thesis line */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
