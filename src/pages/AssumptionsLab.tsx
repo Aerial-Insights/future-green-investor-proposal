@@ -11,8 +11,20 @@ import StackedBarChart from '../components/charts/StackedBarChart'
 import DonutChart from '../components/charts/DonutChart'
 import CostBox from '../components/data-display/CostBox'
 import { useAssumptionsStore } from '../store/useAssumptionsStore'
-import { useCalculations, useInvestorReturns, useLongTermSREC, useAerialResiduals } from '../hooks/useCalculations'
+import {
+  useCalculations,
+  useInvestorReturns,
+  useLongTermSREC,
+  useAerialResiduals,
+  useFinancialOption,
+  usePartnershipReturns,
+  usePartnershipPositionValue,
+} from '../hooks/useCalculations'
 import AerialResidualsBreakdown from '../components/sections/AerialResidualsBreakdown'
+import OptionToggle from '../components/financial/OptionToggle'
+import PartnershipYearlyEarnings from '../components/financial/PartnershipYearlyEarnings'
+import PartnershipPositionValue from '../components/financial/PartnershipPositionValue'
+import PartnershipWaterfallExplanation from '../components/financial/PartnershipWaterfallExplanation'
 import type { AllAssumptions } from '../data/investorPortal/baseAssumptions'
 import type { YearlyOutputs } from '../data/investorPortal/formulas/types'
 import { formatCurrency } from '../utils/formatCurrency'
@@ -25,11 +37,16 @@ import {
 
 export default function AssumptionsLab() {
   const { assumptions, setAssumption } = useAssumptionsStore()
+  const setFinancialOption = useAssumptionsStore((s) => s.setFinancialOption)
+  const selectedOption = useFinancialOption()
   const years = useCalculations()
   const y5 = years[4]
   const investorReturns = useInvestorReturns()
   const longTermSREC = useLongTermSREC()
   const aerialResiduals = useAerialResiduals()
+  const partnershipReturns = usePartnershipReturns()
+  const partnershipPositionValue = usePartnershipPositionValue()
+  const partnershipConfig = assumptions.financialModelOption.partnership
 
   const revenueData = years.map((y) => ({
     name: `Y${y.year}`,
@@ -130,15 +147,32 @@ export default function AssumptionsLab() {
 
           {/* RIGHT PANEL — Outputs */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Investor Returns */}
+            {/* Return Structure Toggle — switches the Investor Returns panel below */}
+            <OptionToggle selected={selectedOption} onChange={setFinancialOption} />
+
+            {/* Investor Returns — conditional on selected return structure */}
+            {selectedOption === 'partnership' ? (
+              <>
+                <PartnershipReturnsPanel summary={partnershipReturns} config={partnershipConfig} />
+                <PartnershipWaterfallExplanation
+                  summary={partnershipReturns}
+                  config={partnershipConfig}
+                  compact
+                />
+                <PartnershipPositionValue
+                  summary={partnershipPositionValue}
+                  heading="Estimated Value of Partnership Position"
+                />
+              </>
+            ) : (
             <div className="luxury-card p-6 border border-surface-border/60">
               <h3 className="text-text-secondary text-xs font-medium uppercase tracking-wider mb-4">
-                Investor Returns
+                Investor Returns — Percentage Back
               </h3>
               <div className="space-y-4">
                 {/* 65% Return Threshold — $66M total returned */}
                 <div className="rounded-xl p-5 text-center" style={{ background: 'linear-gradient(135deg, #064e3b, #065f46)', borderColor: '#10b981', border: '1px solid #10b981' }}>
-                  <p className="text-emerald-200 text-xs uppercase tracking-[0.15em] font-semibold mb-1">65% Return Target</p>
+                  <p className="text-emerald-200 text-xs uppercase tracking-[0.15em] font-semibold mb-1">{Math.round((assumptions.financialModelOption.percentageBack.returnThresholdMultiple - 1) * 100)}% Return Target</p>
                   <p className="text-white font-display font-bold text-4xl mb-1">{formatCurrency(investorReturns.thresholdTarget)}</p>
                   <p className="text-emerald-200 text-sm font-medium">
                     {investorReturns.monthsToThreshold !== null
@@ -146,7 +180,7 @@ export default function AssumptionsLab() {
                       : `${formatCurrency(investorReturns.totalDistributed)} returned through Year 5`}
                   </p>
                   <p className="text-emerald-300/60 text-[10px] mt-1">
-                    {formatCurrency(investorReturns.totalCapital)} principal + 65% return — all investor cash flows count toward threshold
+                    {formatCurrency(investorReturns.totalCapital)} principal + {Math.round((assumptions.financialModelOption.percentageBack.returnThresholdMultiple - 1) * 100)}% return — all investor cash flows count toward threshold
                   </p>
                 </div>
                 {/* Year 1-5 Annual Returns */}
@@ -202,12 +236,13 @@ export default function AssumptionsLab() {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* 20-Year SREC Revenue Breakdown */}
-            <SRECBreakdown longTermSREC={longTermSREC} />
+            {/* 20-Year SREC Revenue Breakdown — only relevant under Percentage Back */}
+            {selectedOption === 'percentageBack' && <SRECBreakdown longTermSREC={longTermSREC} />}
 
-            {/* Aerial Insights Residual Economics */}
-            <AerialResidualsBreakdown residuals={aerialResiduals} />
+            {/* Aerial Insights Residual Economics — only relevant under Percentage Back */}
+            {selectedOption === 'percentageBack' && <AerialResidualsBreakdown residuals={aerialResiduals} />}
 
             {/* KPI Row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -314,6 +349,154 @@ export default function AssumptionsLab() {
         </div>
       </div>
     </PageShell>
+  )
+}
+
+// ─── PARTNERSHIP RETURNS PANEL ─────────────────────────────────────────────
+// Lab-mode preview of the long-term partnership economics. Mirrors the
+// dashboard treatment but condensed to fit alongside the slider controls.
+
+function PartnershipReturnsPanel({
+  summary,
+  config,
+}: {
+  summary: import('../data/investorPortal/formulas/types').PartnershipReturnSummary
+  config: import('../data/investorPortal/baseAssumptions').PartnershipOptionConfig
+}) {
+  const horizonYear = summary.annualReturns[summary.annualReturns.length - 1]?.year ?? config.timeHorizonYears
+  const [breakdownOpen, setBreakdownOpen] = useState(false)
+
+  return (
+    <div className="luxury-card p-6 border border-surface-border/60">
+      <h3 className="text-text-secondary text-xs font-medium uppercase tracking-wider mb-4">
+        Investor Returns — Partnership Option
+      </h3>
+      <div className="space-y-4">
+        {/* Hero card mirroring the threshold tile but for partnership economics */}
+        <div
+          className="rounded-xl p-5 text-center"
+          style={{
+            background: 'linear-gradient(135deg, #78620a, #a17f1a)',
+            border: '1px solid #c9a84c',
+          }}
+        >
+          <p className="text-amber-100 text-xs uppercase tracking-[0.15em] font-semibold mb-1">
+            {horizonYear}-Year Total Earnings
+          </p>
+          <p className="text-white font-display font-bold text-4xl mb-1">
+            {formatCurrency(summary.totalEarnings)}
+          </p>
+          <p className="text-amber-100 text-sm font-medium">
+            {summary.roiMultiple.toFixed(2)}x ROI on {formatCurrency(summary.totalCapital)} capital
+          </p>
+          <p className="text-amber-200/70 text-[10px] mt-1">
+            {config.governance.role} · {config.governance.boardSeatsAppointed} board appointments
+          </p>
+        </div>
+
+        {/* Milestones — Y5 / Y10 / Y15 / Y20 strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {summary.milestones.map((m, idx) => {
+            const isFinal = idx === summary.milestones.length - 1
+            const blues = [
+              { bg: 'linear-gradient(135deg, #1e3a5f, #1e4976)', border: '#60a5fa' },
+              { bg: 'linear-gradient(135deg, #1e4976, #1a3f6b)', border: '#3b82f6' },
+              { bg: 'linear-gradient(135deg, #1a3f6b, #163560)', border: '#2563eb' },
+              { bg: 'linear-gradient(135deg, #122b55, #0f1f3d)', border: '#1e40af' },
+            ]
+            const style = isFinal
+              ? { background: 'linear-gradient(135deg, #78620a, #a17f1a)', borderColor: '#c9a84c' }
+              : { background: blues[idx % blues.length].bg, borderColor: blues[idx % blues.length].border }
+            return (
+              <div key={m.year} className="text-center">
+                <MetricCard
+                  label={`Year ${m.year}`}
+                  value={m.cumulativeEarnings}
+                  format="currency"
+                  compact
+                  style={style}
+                  className={
+                    isFinal
+                      ? '!text-white [&_p]:!text-white [&_p.text-text-secondary]:!text-amber-100'
+                      : '!text-white [&_p]:!text-white [&_p.text-text-secondary]:!text-blue-200'
+                  }
+                />
+                <p
+                  className={`text-[10px] mt-1 uppercase tracking-wider font-medium ${
+                    isFinal ? 'text-amber-200/80' : 'text-blue-300/70'
+                  }`}
+                >
+                  {m.roiMultiple.toFixed(2)}x ROI
+                </p>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Year-by-Year Breakdown toggle — keeps the lab compact by default */}
+        <div className="flex justify-center -mt-1">
+          <button
+            type="button"
+            onClick={() => setBreakdownOpen((open) => !open)}
+            className="inline-flex items-center gap-2 rounded-full border border-accent-gold/30 bg-accent-gold/[0.06] hover:bg-accent-gold/[0.12] hover:border-accent-gold/50 transition-colors duration-200 px-4 py-2"
+            aria-expanded={breakdownOpen}
+            aria-controls="partnership-yearly-breakdown"
+          >
+            <span className="text-accent-gold text-xs font-semibold uppercase tracking-wider">
+              {breakdownOpen ? 'Hide Year-by-Year Breakdown' : 'See Year-by-Year Breakdown'}
+            </span>
+            <span className="text-accent-gold text-xs">{breakdownOpen ? '▲' : '▼'}</span>
+          </button>
+        </div>
+
+        {breakdownOpen && (
+          <div
+            id="partnership-yearly-breakdown"
+            className="pt-2 border-t border-surface-border/40"
+          >
+            <PartnershipYearlyEarnings
+              summary={summary}
+              heading="Year-by-Year Partnership Earnings"
+              compact
+            />
+          </div>
+        )}
+
+        {/* Per-division earnings shares — initial vs permanent */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            {
+              label: 'Home Services',
+              initial: config.homeServicesShare,
+              permanent: config.postThresholdHomeServicesShare,
+              cumulative: summary.divisionContribution.homeServices,
+            },
+            {
+              label: 'Solar & RE',
+              initial: config.realEstateShare,
+              permanent: config.postThresholdRealEstateShare,
+              cumulative: summary.divisionContribution.solarRealEstate,
+            },
+            {
+              label: 'Aerial Insights',
+              initial: config.aerialInsightsShare,
+              permanent: config.postThresholdAerialInsightsShare,
+              cumulative: summary.divisionContribution.aerial,
+            },
+          ].map((d) => (
+            <div key={d.label} className="rounded-lg p-3 text-center bg-surface/40 border border-surface-border/50">
+              <p className="text-text-muted text-[10px] uppercase tracking-wider mb-1">{d.label}</p>
+              <p className="text-text-primary font-display font-semibold text-xs">
+                <span className="text-accent-gold">{formatPercent(d.initial)}</span>
+                <span className="text-text-dim mx-1">→</span>
+                <span className="text-emerald-300">{formatPercent(d.permanent)}</span>
+              </p>
+              <p className="text-accent-gold text-xs mt-1">{formatCurrency(d.cumulative)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 

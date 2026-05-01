@@ -345,6 +345,152 @@ export interface AerialResidualSummary {
   revenuePerUser: number
 }
 
+// ─── EXTENDED YEARS (PARTNERSHIP OPTION) ───────────────────────────────────
+// Lightweight per-division-profit projection covering Y1..N, where Y1-5 mirror
+// the full model and Y6+ are extrapolated using growth-phase rates.
+
+export interface ExtendedYearOutput {
+  year: number
+  phase: 1 | 2 | 3 | 4
+  isExtrapolated: boolean
+  homeServicesProfit: number
+  solarOperationsProfit: number
+  realEstateProfit: number
+  combinedSolarRealEstateProfit: number  // solarOps + RE — convenience for partnership share calc
+  aerialProfit: number
+  aerialAnnualRevenue: number            // ARR proxy — used for SaaS revenue-multiple valuation
+  totalProfit: number
+}
+
+// ─── PARTNERSHIP RETURN OUTPUTS ─────────────────────────────────────────────
+// Waterfall structure: investor receives the higher *initial-phase* shares
+// until cumulative earnings reach the configured return threshold, after which
+// the partnership steps down to lower *permanent long-term* shares for the
+// remainder of the horizon. Mid-year threshold crossings are prorated.
+
+export type PartnershipPhaseLabel = 'initial' | 'permanent' | 'threshold-year'
+
+export interface PartnershipAnnualReturn {
+  year: number
+  phase: 1 | 2 | 3 | 4
+  isExtrapolated: boolean
+  homeServicesProfit: number
+  solarOperationsProfit: number   // sub-component of solarRealEstateProfit
+  realEstateProfit: number        // sub-component of solarRealEstateProfit
+  solarRealEstateProfit: number   // combined
+  aerialProfit: number
+  totalCompanyProfit: number
+  homeServicesEarnings: number
+  // Sub-sector earnings — solarEnergy + realEstate sums back to solarRealEstateEarnings
+  solarEnergyEarnings: number     // solarOperationsProfit × applied RE share (Solar / SREC / Energy)
+  realEstateEarnings: number      // realEstateProfit × applied RE share (Real Estate / Subdivide)
+  solarRealEstateEarnings: number // combined sub-sector earnings (back-compat alias)
+  aerialEarnings: number
+  totalEarnings: number
+  cumulativeEarnings: number
+  // Waterfall context
+  activePhase: PartnershipPhaseLabel
+  preThresholdFraction: number    // 0..1 — fraction of year on initial-phase shares
+  postThresholdFraction: number   // 0..1 — fraction of year on permanent-phase shares
+  appliedHomeServicesShare: number // blended effective % of HS profit paid this year
+  appliedRealEstateShare: number   // blended effective % of (Solar+RE) profit paid this year
+  appliedAerialInsightsShare: number
+  preThresholdEarnings: number     // earnings under initial phase only
+  postThresholdEarnings: number    // earnings under permanent phase only
+  thresholdReachedThisYear: boolean
+}
+
+export interface PartnershipMilestone {
+  year: number                    // 5, 10, 15, 20
+  cumulativeEarnings: number
+  roiMultiple: number             // cumulativeEarnings / totalCapital
+  cumulativeCompanyProfit: number
+  activePhase: PartnershipPhaseLabel
+}
+
+export interface PartnershipDivisionContribution {
+  homeServices: number
+  solarEnergy: number       // cumulative Solar / SREC / Energy earnings
+  realEstate: number        // cumulative Real Estate / Subdivide earnings
+  solarRealEstate: number   // combined (solarEnergy + realEstate) — back-compat
+  aerial: number
+}
+
+export interface PartnershipPhaseTotals {
+  homeServices: number
+  solarEnergy: number
+  realEstate: number
+  solarRealEstate: number
+  aerial: number
+  total: number
+}
+
+export interface PartnershipReturnSummary {
+  totalCapital: number
+  annualReturns: PartnershipAnnualReturn[]
+  milestones: PartnershipMilestone[]
+  totalEarnings: number               // through full horizon
+  roiMultiple: number                 // totalEarnings / totalCapital
+  divisionContribution: PartnershipDivisionContribution
+  // Waterfall summary
+  returnThresholdMultiple: number     // e.g. 2.0
+  thresholdTarget: number             // totalCapital × returnThresholdMultiple
+  thresholdReached: boolean
+  thresholdYear: number | null        // first integer year where cumulative ≥ threshold
+  thresholdYearFractional: number | null // e.g. 4.62 — for chart marker placement
+  thresholdReturnAmount: number       // cumulative earnings at threshold (≈ thresholdTarget when reached)
+  preThresholdTotals: PartnershipPhaseTotals
+  postThresholdTotals: PartnershipPhaseTotals
+  postThresholdAnnualEstimate: number // first full post-threshold year — typical run-rate
+}
+
+// ─── PARTNERSHIP POSITION VALUE (ENTERPRISE-VALUE PROJECTION) ──────────────
+// Illustrative planning estimates of the investor's permanent ownership
+// position. Home Services and Real Estate are valued on EBITDA multiples;
+// Aerial Insights is valued on a SaaS revenue / ARR multiple. Low/Base/High
+// scenarios bracket the investor-facing range — these are NOT appraisals.
+
+export type ValuationScenario = 'low' | 'base' | 'high'
+
+export interface ValuationMultipleRange {
+  low: number
+  base: number
+  high: number
+}
+
+export interface PositionSectorValuation {
+  driver: number                     // EBITDA (HS, RE) or annual revenue (Aerial)
+  driverLabel: 'EBITDA' | 'ARR'
+  multiple: ValuationMultipleRange
+  enterpriseValue: ValuationMultipleRange
+  ownershipShare: number             // investor's % of this sector
+  investorPositionValue: ValuationMultipleRange
+}
+
+export interface PartnershipPositionValueMilestone {
+  year: number                                 // 5, 10, 15, 20
+  homeServices: PositionSectorValuation
+  realEstate: PositionSectorValuation          // includes Solar Ops + Real Estate combined
+  aerialInsights: PositionSectorValuation
+  totalPlatformValue: ValuationMultipleRange
+  investorPositionValue: ValuationMultipleRange
+  blendedOwnershipPercent: ValuationMultipleRange  // investorPositionValue / totalPlatformValue
+}
+
+export interface PartnershipPositionValueSummary {
+  multiples: {
+    homeServices: ValuationMultipleRange
+    realEstate: ValuationMultipleRange
+    aerialInsights: ValuationMultipleRange
+  }
+  ownership: {
+    homeServices: number
+    realEstate: number
+    aerialInsights: number
+  }
+  milestones: PartnershipPositionValueMilestone[]
+}
+
 // ─── YEAR-OVER-YEAR STRUCTURE ────────────────────────────────────────────────
 
 export interface YearlyOutputs {

@@ -1,7 +1,25 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { BASE_ASSUMPTIONS, type AllAssumptions } from '../data/investorPortal/baseAssumptions'
+import {
+  BASE_ASSUMPTIONS,
+  type AllAssumptions,
+  type FinancialModelOptionKey,
+  type PercentageBackOptionConfig,
+  type PartnershipOptionConfig,
+  type GrowthPhaseKey,
+  type GrowthDivisionKey,
+  type PartnershipGovernance,
+} from '../data/investorPortal/baseAssumptions'
 import { SCENARIO_PRESETS, applyPreset, type ScenarioKey } from '../data/investorPortal/scenarioPresets'
+
+type PartnershipShareKey =
+  | 'homeServicesShare'
+  | 'realEstateShare'
+  | 'aerialInsightsShare'
+  | 'postThresholdHomeServicesShare'
+  | 'postThresholdRealEstateShare'
+  | 'postThresholdAerialInsightsShare'
+  | 'returnThresholdMultiple'
 
 interface AssumptionsState {
   assumptions: AllAssumptions
@@ -13,6 +31,19 @@ interface AssumptionsState {
   ) => void
   applyScenarioPreset: (scenario: ScenarioKey) => void
   resetToBase: () => void
+  // Financial model option setters
+  setFinancialOption: (option: FinancialModelOptionKey) => void
+  setPercentageBackConfig: <K extends keyof PercentageBackOptionConfig>(
+    key: K,
+    value: PercentageBackOptionConfig[K]
+  ) => void
+  setPartnershipShare: (key: PartnershipShareKey, value: number) => void
+  setPartnershipHorizon: (years: number) => void
+  setGrowthPhaseRate: (phase: GrowthPhaseKey, division: GrowthDivisionKey, rate: number) => void
+  setGovernance: <K extends keyof PartnershipGovernance>(
+    key: K,
+    value: PartnershipGovernance[K]
+  ) => void
 }
 
 export const useAssumptionsStore = create<AssumptionsState>()(
@@ -49,8 +80,13 @@ export const useAssumptionsStore = create<AssumptionsState>()(
         }),
 
       applyScenarioPreset: (scenario) =>
-        set(() => ({
-          assumptions: applyPreset(BASE_ASSUMPTIONS, SCENARIO_PRESETS[scenario].overrides),
+        set((state) => ({
+          // Preserve existing financialModelOption — scenarios drive business
+          // assumptions only, not the return-structure overlay
+          assumptions: {
+            ...applyPreset(BASE_ASSUMPTIONS, SCENARIO_PRESETS[scenario].overrides),
+            financialModelOption: state.assumptions.financialModelOption,
+          },
           activeScenario: scenario,
         })),
 
@@ -59,17 +95,159 @@ export const useAssumptionsStore = create<AssumptionsState>()(
           assumptions: { ...BASE_ASSUMPTIONS },
           activeScenario: 'base' as const,
         })),
+
+      setFinancialOption: (option) =>
+        set((state) => ({
+          assumptions: {
+            ...state.assumptions,
+            financialModelOption: {
+              ...state.assumptions.financialModelOption,
+              selectedOption: option,
+            },
+          },
+        })),
+
+      setPercentageBackConfig: (key, value) =>
+        set((state) => ({
+          assumptions: {
+            ...state.assumptions,
+            financialModelOption: {
+              ...state.assumptions.financialModelOption,
+              percentageBack: {
+                ...state.assumptions.financialModelOption.percentageBack,
+                [key]: value,
+              },
+            },
+          },
+          activeScenario: 'custom' as const,
+        })),
+
+      setPartnershipShare: (key, value) =>
+        set((state) => ({
+          assumptions: {
+            ...state.assumptions,
+            financialModelOption: {
+              ...state.assumptions.financialModelOption,
+              partnership: {
+                ...state.assumptions.financialModelOption.partnership,
+                [key]: value,
+              },
+            },
+          },
+          activeScenario: 'custom' as const,
+        })),
+
+      setPartnershipHorizon: (years) =>
+        set((state) => ({
+          assumptions: {
+            ...state.assumptions,
+            financialModelOption: {
+              ...state.assumptions.financialModelOption,
+              partnership: {
+                ...state.assumptions.financialModelOption.partnership,
+                timeHorizonYears: years,
+              },
+            },
+          },
+          activeScenario: 'custom' as const,
+        })),
+
+      setGrowthPhaseRate: (phase, division, rate) =>
+        set((state) => {
+          const partnership = state.assumptions.financialModelOption.partnership
+          return {
+            assumptions: {
+              ...state.assumptions,
+              financialModelOption: {
+                ...state.assumptions.financialModelOption,
+                partnership: {
+                  ...partnership,
+                  growthPhases: {
+                    ...partnership.growthPhases,
+                    [phase]: {
+                      ...partnership.growthPhases[phase],
+                      [division]: rate,
+                    },
+                  },
+                },
+              },
+            },
+            activeScenario: 'custom' as const,
+          }
+        }),
+
+      setGovernance: (key, value) =>
+        set((state) => ({
+          assumptions: {
+            ...state.assumptions,
+            financialModelOption: {
+              ...state.assumptions.financialModelOption,
+              partnership: {
+                ...state.assumptions.financialModelOption.partnership,
+                governance: {
+                  ...state.assumptions.financialModelOption.partnership.governance,
+                  [key]: value,
+                },
+              },
+            },
+          },
+          activeScenario: 'custom' as const,
+        })),
     }),
     {
       name: 'investor-portal-assumptions',
-      version: 16,
-      migrate: () => {
-        // Version 16: Add aerialMarketingMonthly to aerial assumptions.
-        // Discard any old persisted state and start fresh.
-        return {
-          assumptions: { ...BASE_ASSUMPTIONS },
-          activeScenario: 'base' as ScenarioKey | 'custom',
+      version: 18,
+      // Non-destructive migrate: preserves existing slider state when bumping
+      // version. v18 introduces the partnership return-waterfall fields.
+      migrate: (persistedState: unknown, fromVersion: number) => {
+        const prev = (persistedState ?? {}) as {
+          assumptions?: Partial<AllAssumptions>
+          activeScenario?: ScenarioKey | 'custom'
         }
+        if (fromVersion < 17) {
+          return {
+            assumptions: {
+              ...BASE_ASSUMPTIONS,
+              ...(prev.assumptions ?? {}),
+              financialModelOption:
+                prev.assumptions?.financialModelOption ?? BASE_ASSUMPTIONS.financialModelOption,
+            },
+            activeScenario: prev.activeScenario ?? ('base' as ScenarioKey | 'custom'),
+          }
+        }
+        if (fromVersion < 18) {
+          const prevPartnership =
+            (prev.assumptions?.financialModelOption?.partnership ?? {}) as Partial<PartnershipOptionConfig>
+          const partnershipDefaults = BASE_ASSUMPTIONS.financialModelOption.partnership
+          return {
+            assumptions: {
+              ...BASE_ASSUMPTIONS,
+              ...(prev.assumptions ?? {}),
+              financialModelOption: {
+                ...BASE_ASSUMPTIONS.financialModelOption,
+                ...(prev.assumptions?.financialModelOption ?? {}),
+                partnership: {
+                  ...partnershipDefaults,
+                  ...prevPartnership,
+                  postThresholdHomeServicesShare:
+                    prevPartnership.postThresholdHomeServicesShare ??
+                    partnershipDefaults.postThresholdHomeServicesShare,
+                  postThresholdRealEstateShare:
+                    prevPartnership.postThresholdRealEstateShare ??
+                    partnershipDefaults.postThresholdRealEstateShare,
+                  postThresholdAerialInsightsShare:
+                    prevPartnership.postThresholdAerialInsightsShare ??
+                    partnershipDefaults.postThresholdAerialInsightsShare,
+                  returnThresholdMultiple:
+                    prevPartnership.returnThresholdMultiple ??
+                    partnershipDefaults.returnThresholdMultiple,
+                },
+              },
+            },
+            activeScenario: prev.activeScenario ?? ('base' as ScenarioKey | 'custom'),
+          }
+        }
+        return persistedState
       },
     }
   )

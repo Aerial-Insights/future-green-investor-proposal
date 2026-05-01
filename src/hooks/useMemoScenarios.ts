@@ -19,7 +19,15 @@ export function useMemoScenarios(): Record<ScenarioKey, ScenarioResult> {
     for (const [key, preset] of Object.entries(SCENARIO_PRESETS)) {
       const assumptions = applyPreset(BASE_ASSUMPTIONS, preset.overrides)
       const years = calcAllYears(assumptions, 5)
-      const returns = calcInvestorReturns(years, assumptions.capital.totalCapitalRaise)
+      const pb = BASE_ASSUMPTIONS.financialModelOption.percentageBack
+      const returns = calcInvestorReturns(years, assumptions.capital.totalCapitalRaise, {
+        homeServicesShare: pb.homeServicesShare,
+        solarRealEstateShare: pb.solarRealEstateShare,
+        aerialShare: pb.aerialShare,
+        srecShare: pb.srecShare,
+        aerialResidualShare: pb.aerialResidualShare,
+        returnThresholdMultiple: pb.returnThresholdMultiple,
+      })
       results[key as ScenarioKey] = {
         key: key as ScenarioKey,
         label: preset.label,

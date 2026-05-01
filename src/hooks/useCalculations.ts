@@ -1,7 +1,24 @@
 import { useMemo } from 'react'
 import { useAssumptionsStore } from '../store/useAssumptionsStore'
-import { calcAllYears, calcInvestorReturns, calcLongTermSREC, calcAerialResiduals } from '../data/investorPortal/formulas'
-import type { YearlyOutputs, InvestorReturnSummary, LongTermSRECSummary, AerialResidualSummary } from '../data/investorPortal/formulas/types'
+import {
+  calcAllYears,
+  calcInvestorReturns,
+  calcLongTermSREC,
+  calcAerialResiduals,
+  calcExtendedYears,
+  calcPartnershipReturns,
+  calcPartnershipPositionValue,
+} from '../data/investorPortal/formulas'
+import type {
+  YearlyOutputs,
+  InvestorReturnSummary,
+  LongTermSRECSummary,
+  AerialResidualSummary,
+  ExtendedYearOutput,
+  PartnershipReturnSummary,
+  PartnershipPositionValueSummary,
+} from '../data/investorPortal/formulas/types'
+import type { FinancialModelOptionKey } from '../data/investorPortal/baseAssumptions'
 
 export function useCalculations(years: number = 5): YearlyOutputs[] {
   const assumptions = useAssumptionsStore((s) => s.assumptions)
@@ -22,12 +39,31 @@ export function useLatestYear(): YearlyOutputs {
 export function useInvestorReturns(): InvestorReturnSummary {
   const years = useCalculations()
   const totalCapital = useAssumptionsStore((s) => s.assumptions.capital.totalCapitalRaise)
-  return useMemo(() => calcInvestorReturns(years, totalCapital), [years, totalCapital])
+  const config = useAssumptionsStore((s) => s.assumptions.financialModelOption.percentageBack)
+  return useMemo(
+    () =>
+      calcInvestorReturns(years, totalCapital, {
+        homeServicesShare: config.homeServicesShare,
+        solarRealEstateShare: config.solarRealEstateShare,
+        aerialShare: config.aerialShare,
+        srecShare: config.srecShare,
+        aerialResidualShare: config.aerialResidualShare,
+        returnThresholdMultiple: config.returnThresholdMultiple,
+      }),
+    [years, totalCapital, config]
+  )
 }
 
 export function useLongTermSREC(): LongTermSRECSummary {
   const years = useCalculations()
-  return useMemo(() => calcLongTermSREC(years), [years])
+  const srecShare = useAssumptionsStore(
+    (s) => s.assumptions.financialModelOption.percentageBack.srecShare
+  )
+  const srecLifespan = useAssumptionsStore((s) => s.assumptions.distributedSolar.srecLifespan)
+  return useMemo(
+    () => calcLongTermSREC(years, srecShare, srecLifespan),
+    [years, srecShare, srecLifespan]
+  )
 }
 
 export function useAerialResiduals(): AerialResidualSummary {
@@ -36,5 +72,50 @@ export function useAerialResiduals(): AerialResidualSummary {
   return useMemo(
     () => calcAerialResiduals(years, assumptions),
     [years, assumptions]
+  )
+}
+
+// ─── PARTNERSHIP OPTION HOOKS ──────────────────────────────────────────────
+
+export function useFinancialOption(): FinancialModelOptionKey {
+  return useAssumptionsStore((s) => s.assumptions.financialModelOption.selectedOption)
+}
+
+export function useExtendedYears(): ExtendedYearOutput[] {
+  const baseYears = useCalculations()
+  const partnership = useAssumptionsStore(
+    (s) => s.assumptions.financialModelOption.partnership
+  )
+  return useMemo(
+    () =>
+      calcExtendedYears({
+        baseYears,
+        totalYears: partnership.timeHorizonYears,
+        growthPhases: partnership.growthPhases,
+      }),
+    [baseYears, partnership.timeHorizonYears, partnership.growthPhases]
+  )
+}
+
+export function usePartnershipReturns(): PartnershipReturnSummary {
+  const extendedYears = useExtendedYears()
+  const totalCapital = useAssumptionsStore((s) => s.assumptions.capital.totalCapitalRaise)
+  const partnership = useAssumptionsStore(
+    (s) => s.assumptions.financialModelOption.partnership
+  )
+  return useMemo(
+    () => calcPartnershipReturns(extendedYears, totalCapital, partnership),
+    [extendedYears, totalCapital, partnership]
+  )
+}
+
+export function usePartnershipPositionValue(): PartnershipPositionValueSummary {
+  const extendedYears = useExtendedYears()
+  const partnership = useAssumptionsStore(
+    (s) => s.assumptions.financialModelOption.partnership
+  )
+  return useMemo(
+    () => calcPartnershipPositionValue(extendedYears, partnership),
+    [extendedYears, partnership]
   )
 }

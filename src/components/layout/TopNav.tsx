@@ -1,20 +1,19 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { useState } from 'react'
-
-const navItems = [
-  { path: '/', label: 'Overview' },
-  { path: '/qualifications', label: 'Qualifications' },
-  { path: '/home-services', label: 'Home Services' },
-  { path: '/solar-real-estate', label: 'Real Estate' },
-  { path: '/aerial-insights', label: 'Aerial Insights' },
-  { path: '/financial-model', label: 'Financial Model' },
-  { path: '/assumptions-lab', label: 'Assumptions Lab' },
-  { path: '/strategic-impact', label: 'Strategic Impact' },
-]
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import NavDropdown from './NavDropdown'
+import { NAV_GROUPS, isNavGroup, type NavGroup } from '../../data/investorPortal/navigation'
 
 export default function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [openGroup, setOpenGroup] = useState<string | null>(null)
   const location = useLocation()
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false)
+    setOpenGroup(null)
+  }, [location.pathname])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl border-b border-surface-border">
@@ -34,22 +33,27 @@ export default function TopNav() {
 
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
-                    isActive
-                      ? 'text-accent-gold bg-accent-gold/10'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-                  }`
-                }
-                end={item.path === '/'}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {NAV_GROUPS.map((entry) => {
+              if (isNavGroup(entry)) {
+                return <NavDropdown key={entry.label} label={entry.label} items={entry.items} />
+              }
+              return (
+                <NavLink
+                  key={entry.path}
+                  to={entry.path}
+                  className={({ isActive }) =>
+                    `px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+                      isActive
+                        ? 'text-accent-gold bg-accent-gold/10'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    }`
+                  }
+                  end={entry.path === '/'}
+                >
+                  {entry.label}
+                </NavLink>
+              )
+            })}
           </div>
 
           {/* Mobile hamburger */}
@@ -72,27 +76,116 @@ export default function TopNav() {
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="lg:hidden bg-surface-elevated border-b border-surface-border">
-          <div className="px-4 py-3 space-y-1">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === item.path || (item.path === '/' && location.pathname === '/')
-                    ? 'text-accent-gold bg-accent-gold/10'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-                }`}
-                end={item.path === '/'}
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="lg:hidden bg-surface-elevated border-b border-surface-border overflow-hidden"
+          >
+            <div className="px-4 py-3 space-y-1">
+              {NAV_GROUPS.map((entry) => {
+                if (isNavGroup(entry)) {
+                  return (
+                    <MobileGroup
+                      key={entry.label}
+                      group={entry}
+                      isOpen={openGroup === entry.label}
+                      onToggle={() => setOpenGroup(openGroup === entry.label ? null : entry.label)}
+                      activePath={location.pathname}
+                    />
+                  )
+                }
+                return (
+                  <NavLink
+                    key={entry.path}
+                    to={entry.path}
+                    className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      location.pathname === entry.path
+                        ? 'text-accent-gold bg-accent-gold/10'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    }`}
+                    end={entry.path === '/'}
+                  >
+                    {entry.label}
+                  </NavLink>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
+  )
+}
+
+function MobileGroup({
+  group,
+  isOpen,
+  onToggle,
+  activePath,
+}: {
+  group: NavGroup
+  isOpen: boolean
+  onToggle: () => void
+  activePath: string
+}) {
+  const isGroupActive = group.items.some((i) => i.path === activePath)
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+          isGroupActive
+            ? 'text-accent-gold bg-accent-gold/10'
+            : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+        }`}
+        aria-expanded={isOpen}
+      >
+        <span>{group.label}</span>
+        <svg
+          className="w-4 h-4 transition-transform duration-200"
+          style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="overflow-hidden"
+          >
+            <div className="pl-4 mt-1 mb-1 space-y-1 border-l border-surface-border ml-3">
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-accent-gold bg-accent-gold/10'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }

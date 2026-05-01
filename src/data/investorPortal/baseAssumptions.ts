@@ -157,6 +157,71 @@ export interface DirectMailGrowth {
   costPerLetter: number
 }
 
+// ─── FINANCIAL MODEL OPTION (DUAL-STRUCTURE TOGGLE) ────────────────────────
+// The investor proposal supports two return structures:
+//   1. percentageBack — 5-year, 65%-threshold capped return (existing logic)
+//   2. partnership    — 20-year permanent equity partnership across divisions
+//
+// All percentages, thresholds, and growth rates are centralized here so the
+// UI never reads hardcoded numbers. Edits via the Unlock Assumptions panel
+// flow through Zustand setters, triggering live recalculation everywhere.
+
+export type FinancialModelOptionKey = 'percentageBack' | 'partnership'
+
+export interface PercentageBackOptionConfig {
+  homeServicesShare: number        // 0.15 of HS profits (Phase 1)
+  solarRealEstateShare: number     // 0.20 of Solar+RE profits (Phase 1)
+  aerialShare: number              // 0.10 of Aerial profits (Phase 1)
+  srecShare: number                // 0.50 of SREC revenue (uncapped, both phases)
+  aerialResidualShare: number      // 0.03 of Aerial revenue (Phase 2 permanent residual)
+  returnThresholdMultiple: number  // 1.65 = 65% return target ($66M on $40M)
+  timeHorizonYears: number         // 5 (model granularity)
+}
+
+export type GrowthPhaseKey = 'phase2' | 'phase3' | 'phase4' // Y6-10, Y11-15, Y16-20
+export type GrowthDivisionKey = 'homeServices' | 'solarRealEstate' | 'aerial'
+
+export interface PerDivisionGrowth {
+  homeServices: number
+  solarRealEstate: number          // applied to combined solarOps + RE profit
+  aerial: number
+}
+
+export interface PartnershipGovernance {
+  role: string                     // 'Chairman of the Board'
+  boardSeatsAppointed: number      // 3
+}
+
+export interface PartnershipOptionConfig {
+  // Initial Return Phase — applies until cumulative earnings reach the
+  // configured return threshold. These are the "primary partnership
+  // percentages" the investor participates at during the initial period.
+  homeServicesShare: number        // 0.12 — initial-phase share of HS profits
+  realEstateShare: number          // 0.18 — initial-phase share of Solar+RE profits
+  aerialInsightsShare: number      // 0.07 — initial-phase share of Aerial profits
+  // Permanent Long-Term Phase — applies after the threshold is reached and
+  // continues for the rest of the partnership horizon.
+  postThresholdHomeServicesShare: number    // 0.07 default
+  postThresholdRealEstateShare: number      // 0.07 default — applied to Solar+RE combined
+  postThresholdAerialInsightsShare: number  // 0.03 default
+  // Return Threshold — investor switches to permanent phase once cumulative
+  // partnership earnings cross totalCapital × returnThresholdMultiple.
+  returnThresholdMultiple: number  // 2.0 = 200% (2.0x cumulative return)
+  timeHorizonYears: number         // 20
+  governance: PartnershipGovernance
+  growthPhases: {
+    phase2: PerDivisionGrowth      // Y6-10 strong moderated scaling
+    phase3: PerDivisionGrowth      // Y11-15 mature national expansion
+    phase4: PerDivisionGrowth      // Y16-20 stabilized tapered growth
+  }
+}
+
+export interface FinancialModelOption {
+  selectedOption: FinancialModelOptionKey
+  percentageBack: PercentageBackOptionConfig
+  partnership: PartnershipOptionConfig
+}
+
 export interface AllAssumptions {
   sales: SalesAssumptions
   upsell: UpsellRates
@@ -168,6 +233,7 @@ export interface AllAssumptions {
   capital: CapitalAssumptions
   grants: GrantAssumptions
   directMailGrowth: DirectMailGrowth
+  financialModelOption: FinancialModelOption
 }
 
 // ─── BASE CASE DEFAULTS (FROM MASTER SPREADSHEET) ───────────────────────────
@@ -327,5 +393,45 @@ export const BASE_ASSUMPTIONS: AllAssumptions = {
     y4LettersPerMonth: 42500,
     y5LettersPerMonth: 50000,
     costPerLetter: 1.50,
+  },
+
+  // Centralized return-structure config — drives both options.
+  // Defaults preserve existing percentage-back behavior byte-for-byte.
+  financialModelOption: {
+    selectedOption: 'percentageBack',
+    percentageBack: {
+      homeServicesShare: 0.15,
+      solarRealEstateShare: 0.20,
+      aerialShare: 0.10,
+      srecShare: 0.50,
+      aerialResidualShare: 0.03,
+      returnThresholdMultiple: 1.65,
+      timeHorizonYears: 5,
+    },
+    partnership: {
+      // Initial-phase shares — apply until threshold is reached.
+      homeServicesShare: 0.12,
+      realEstateShare: 0.18,
+      aerialInsightsShare: 0.07,
+      // Permanent-phase shares — apply once threshold target is reached.
+      postThresholdHomeServicesShare: 0.07,
+      postThresholdRealEstateShare: 0.07,
+      postThresholdAerialInsightsShare: 0.03,
+      // Threshold — 2.0x cumulative return on capital triggers step-down.
+      returnThresholdMultiple: 2.0,
+      timeHorizonYears: 20,
+      governance: {
+        role: 'Chairman of the Board',
+        boardSeatsAppointed: 3,
+      },
+      // Per-division YoY growth rates by phase. Aerial (SaaS) tapers slower
+      // than Home Services (regional saturation) and Solar/RE (deployment-bound).
+      // At defaults, Y20 portfolio profit lands ~4-6x Y5 — credible and non-runaway.
+      growthPhases: {
+        phase2: { homeServices: 0.18, solarRealEstate: 0.22, aerial: 0.30 }, // Y6-10
+        phase3: { homeServices: 0.10, solarRealEstate: 0.12, aerial: 0.15 }, // Y11-15
+        phase4: { homeServices: 0.04, solarRealEstate: 0.05, aerial: 0.06 }, // Y16-20
+      },
+    },
   },
 }

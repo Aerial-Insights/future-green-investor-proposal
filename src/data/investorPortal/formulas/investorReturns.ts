@@ -7,34 +7,49 @@ import type {
   LongTermSRECSummary,
 } from './types'
 
-const HS_SHARE = 0.15
-const SOLAR_RE_SHARE = 0.20
-const AERIAL_SHARE = 0.10
-const RETURN_MULTIPLIER = 1.65       // 65% return = investor receives 1.65x capital
-const SREC_SHARE = 0.50
-const AERIAL_RESIDUAL_SHARE = 0.03
-
-// ─── 5-YEAR INVESTOR RETURN MODEL ──────────────────────────────────────────
-// ACCELERATED PHASE: Investor receives 15% of HS, 20% of Solar & RE
-// (INSTALL revenue only), and 10% of Aerial profits. SREC participation
-// (50%) also runs from Year 1. ALL investor cash flows (accelerated + SREC)
-// count toward the 65% return threshold ($66M on a $40M raise — meaning
-// the investor receives their capital back plus a 65% return).
+// ─── INVESTOR RETURN MODEL — PERCENTAGE BACK OPTION ────────────────────────
+// Configuration-driven so the Unlock Assumptions panel can edit any rate or
+// threshold and have the entire model recalculate live.
+//
+// ACCELERATED PHASE: Investor receives configurable shares of HS, Solar+RE,
+// and Aerial profits, plus 50% (default) of SREC revenue. ALL investor cash
+// flows count toward the return threshold (1.65x by default = 65% return on
+// $40M = $66M target).
+//
 // Once cumulative total returns reach the threshold, the three accelerated
 // streams stop entirely.
 //
 // LONG-TERM RESIDUAL PHASE (post-threshold):
-// - 50% of SREC revenue continues for the full life of each contract (20 years)
-// - 3% of Aerial Insights revenue continues as a permanent residual
+//  - SREC share continues for the full life of each contract (20 years)
+//  - Aerial residual share continues as a permanent residual
 //
-// Aerial residual (3%) activates post-threshold only (during accelerated
-// phase, the 10% share already exceeds the 3%).
+// Aerial residual activates post-threshold only (during accelerated phase,
+// the larger Aerial share already exceeds the residual rate).
+
+export interface InvestorReturnsConfig {
+  homeServicesShare: number
+  solarRealEstateShare: number
+  aerialShare: number
+  srecShare: number
+  aerialResidualShare: number
+  returnThresholdMultiple: number
+}
 
 export function calcInvestorReturns(
   years: YearlyOutputs[],
-  totalCapital: number
+  totalCapital: number,
+  config: InvestorReturnsConfig
 ): InvestorReturnSummary {
-  const thresholdTarget = totalCapital * RETURN_MULTIPLIER  // $66M on $40M
+  const {
+    homeServicesShare: hsShare,
+    solarRealEstateShare: solarReShare,
+    aerialShare: aerialShareCfg,
+    srecShare: srecShareCfg,
+    aerialResidualShare: aerialResidualShareCfg,
+    returnThresholdMultiple,
+  } = config
+
+  const thresholdTarget = totalCapital * returnThresholdMultiple
   let cumulativeTotalReturn = 0
   let cumulativeDistributions = 0   // accelerated-only subtotal (for reporting)
   let thresholdYear: number | null = null
@@ -48,25 +63,25 @@ export function calcInvestorReturns(
     let aerialResidualDistribution: number
     let totalDistribution: number
 
-    // SREC participation — 50% of annual SREC revenue every year (before AND after threshold)
-    const srecDistribution = Math.max(0, y.realEstate.distributedSolar.srecRevenue * SREC_SHARE)
+    // SREC participation — configurable share of annual SREC revenue every year
+    const srecDistribution = Math.max(0, y.realEstate.distributedSolar.srecRevenue * srecShareCfg)
 
     if (thresholdYear === null) {
       // ACCELERATED PHASE: full revenue shares + SREC all count toward threshold
-      homeServicesDistribution = Math.max(0, y.portfolio.homeServicesProfit * HS_SHARE)
+      homeServicesDistribution = Math.max(0, y.portfolio.homeServicesProfit * hsShare)
       solarRealEstateDistribution = Math.max(
         0,
-        (y.portfolio.solarOperationsProfit + y.portfolio.realEstateProfit) * SOLAR_RE_SHARE
+        (y.portfolio.solarOperationsProfit + y.portfolio.realEstateProfit) * solarReShare
       )
-      aerialDistribution = Math.max(0, y.portfolio.aerialProfit * AERIAL_SHARE)
-      aerialResidualDistribution = 0 // subsumed by the 10% accelerated share
+      aerialDistribution = Math.max(0, y.portfolio.aerialProfit * aerialShareCfg)
+      aerialResidualDistribution = 0 // subsumed by the larger accelerated share
       totalDistribution = homeServicesDistribution + solarRealEstateDistribution + aerialDistribution
 
       // Total investor cash flow this year (accelerated + SREC)
       const totalCashThisYear = totalDistribution + srecDistribution
       cumulativeTotalReturn += totalCashThisYear
 
-      // Check if the $66M threshold is crossed this year
+      // Check if the return threshold is crossed this year
       if (cumulativeTotalReturn >= thresholdTarget) {
         // Reduce only accelerated streams to cap cumulative at exactly the threshold
         // SREC flows through uncapped since it continues post-threshold
@@ -91,11 +106,11 @@ export function calcInvestorReturns(
 
       cumulativeDistributions += totalDistribution
     } else {
-      // POST-THRESHOLD: accelerated streams stop, 3% Aerial residual continues permanently
+      // POST-THRESHOLD: accelerated streams stop, aerial residual continues permanently
       homeServicesDistribution = 0
       solarRealEstateDistribution = 0
       aerialDistribution = 0
-      aerialResidualDistribution = Math.max(0, y.portfolio.aerialProfit * AERIAL_RESIDUAL_SHARE)
+      aerialResidualDistribution = Math.max(0, y.portfolio.aerialProfit * aerialResidualShareCfg)
       totalDistribution = 0
 
       // Post-threshold: only SREC + aerial residual count
@@ -123,28 +138,27 @@ export function calcInvestorReturns(
     }
   })
 
-  // Calculate months to reach the $66M threshold (all streams combined)
-  // If not reached within 5 years, extrapolate using Year 5 annual rate
+  // Calculate months to reach the threshold (all streams combined).
+  // If not reached within the modeled horizon, extrapolate using the last
+  // year's annual rate.
   let monthsToThreshold: number | null = null
   if (thresholdYear !== null) {
-    // Threshold was reached within the modeled years — calculate precise month
     const thresholdIdx = thresholdYear - 1
     const prevCumulative = thresholdIdx > 0 ? annualReturns[thresholdIdx - 1].cumulativeTotalReturn : 0
 
     // Compute uncapped total return for the threshold year from raw data
     const thresholdYearData = years[thresholdIdx]
     const uncappedAccelerated =
-      Math.max(0, thresholdYearData.portfolio.homeServicesProfit * HS_SHARE) +
-      Math.max(0, (thresholdYearData.portfolio.solarOperationsProfit + thresholdYearData.portfolio.realEstateProfit) * SOLAR_RE_SHARE) +
-      Math.max(0, thresholdYearData.portfolio.aerialProfit * AERIAL_SHARE)
-    const uncappedSREC = Math.max(0, thresholdYearData.realEstate.distributedSolar.srecRevenue * SREC_SHARE)
+      Math.max(0, thresholdYearData.portfolio.homeServicesProfit * hsShare) +
+      Math.max(0, (thresholdYearData.portfolio.solarOperationsProfit + thresholdYearData.portfolio.realEstateProfit) * solarReShare) +
+      Math.max(0, thresholdYearData.portfolio.aerialProfit * aerialShareCfg)
+    const uncappedSREC = Math.max(0, thresholdYearData.realEstate.distributedSolar.srecRevenue * srecShareCfg)
     const uncappedTotal = uncappedAccelerated + uncappedSREC
 
     const remaining = thresholdTarget - prevCumulative
     const fractionOfYear = uncappedTotal > 0 ? Math.min(remaining / uncappedTotal, 1) : 1
     monthsToThreshold = thresholdIdx * 12 + Math.max(1, Math.round(fractionOfYear * 12))
   } else if (annualReturns.length > 0) {
-    // Extrapolate beyond Year 5 using Year 5's annual return rate
     const lastYear = annualReturns[annualReturns.length - 1]
     const annualRate = lastYear.totalReturnThisYear
     if (annualRate > 0) {
@@ -159,11 +173,9 @@ export function calcInvestorReturns(
   }
 
   // Projected annual aerial residual: what the investor WILL receive annually
-  // as a permanent residual post-threshold (based on Y5 aerial profit × 3%).
-  // Always computed so the UI can display it even when threshold is met late
-  // in the model and totalAerialResidualDistributed is near zero.
+  // as a permanent residual post-threshold (last-year aerial profit × residual share).
   const projectedAnnualAerialResidual =
-    Math.max(0, years[years.length - 1].portfolio.aerialProfit * AERIAL_RESIDUAL_SHARE)
+    Math.max(0, years[years.length - 1].portfolio.aerialProfit * aerialResidualShareCfg)
 
   return {
     totalCapital,
@@ -181,17 +193,15 @@ export function calcInvestorReturns(
 }
 
 // ─── 20-YEAR SREC COHORT MODEL ─────────────────────────────────────────────
-// Each Year 1-5 install cohort generates SREC revenue for 20 years.
-// The investor retains 50% equity in the SREC economics for all installs
-// originated during the initial 5-year deployment period.
+// Each Year 1-5 install cohort generates SREC revenue for `srecLifespan` years.
+// The investor retains `investorEquityShare` of the SREC economics for all
+// installs originated during the initial deployment period.
 // No build delay — distributed rooftop installs produce SRECs immediately.
-// Install counts now vary by year (monthly marketing ramp model).
-
-const SREC_LIFESPAN = 20
-const INVESTOR_SREC_EQUITY = 0.50
 
 export function calcLongTermSREC(
   years: YearlyOutputs[],
+  investorEquityShare: number = 0.50,
+  srecLifespan: number = 20,
 ): LongTermSRECSummary {
   // Get SREC parameters from the model's existing data
   const ds0 = years[0]?.realEstate.distributedSolar
@@ -204,9 +214,8 @@ export function calcLongTermSREC(
     const yearData = years[buildYear - 1]
     const installCount = yearData?.realEstate.distributedSolar.newInstalls ?? 0
     if (installCount <= 0) continue
-    // Each cohort starts producing SREC revenue immediately (no build delay)
     const startYear = buildYear
-    const endYear = startYear + SREC_LIFESPAN - 1
+    const endYear = startYear + srecLifespan - 1
     const annualSRECRevenue = installCount * srecsPerInstall * srecValuePerCredit
     cohorts.push({
       buildYear,
@@ -214,10 +223,22 @@ export function calcLongTermSREC(
       srecsPerInstall,
       srecValuePerCredit,
       annualSRECRevenue,
-      srecLifespan: SREC_LIFESPAN,
+      srecLifespan,
       startYear,
       endYear,
     })
+  }
+
+  // Edge case: no cohorts — return empty summary
+  if (cohorts.length === 0) {
+    return {
+      cohorts: [],
+      annualProjections: [],
+      totalInvestorSRECIncome: 0,
+      totalPlatformSRECRevenue: 0,
+      peakAnnualInvestorIncome: 0,
+      investorEquityShare,
+    }
   }
 
   // Find the full timeline: earliest start to latest end
@@ -241,7 +262,7 @@ export function calcLongTermSREC(
       }
     }
 
-    const investorShare = totalSRECRevenue * INVESTOR_SREC_EQUITY
+    const investorShare = totalSRECRevenue * investorEquityShare
     cumulativeInvestorShare += investorShare
     totalPlatformSRECRevenue += totalSRECRevenue
     if (investorShare > peakAnnualInvestorIncome) {
@@ -263,6 +284,6 @@ export function calcLongTermSREC(
     totalInvestorSRECIncome: cumulativeInvestorShare,
     totalPlatformSRECRevenue,
     peakAnnualInvestorIncome,
-    investorEquityShare: INVESTOR_SREC_EQUITY,
+    investorEquityShare,
   }
 }
